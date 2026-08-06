@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    
+    <!-- ===== CONFIGURACIÓN PWA ===== -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Cookly" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#f97316" />
+    
+    <!-- ===== SEO Y DESCRIPCIÓN ===== -->
+    <title>🍳 Cookly - Asistente Inteligente de Cocina</title>
+    <meta name="description" content="Cookly te ayuda a encontrar recetas, planificar comidas y comprar de forma inteligente. ¡Cocina con lo que tienes!" />
+    
+    <!-- ===== OPEN GRAPH ===== -->
+    <meta property="og:title" content="🍳 Cookly - Asistente Inteligente de Cocina" />
+    <meta property="og:description" content="Encuentra recetas, planifica comidas y cocina con lo que tienes en casa." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://cookly.app" />
+    
+    <!-- ===== LIBRERÍAS ===== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <style>
+        /* ===== ESTILOS COOKLY ===== */
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+            background: #f8fafc;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        /* Colores Cookly */
+        .bg-cookly { background: #f97316; }
+        .bg-cookly-dark { background: #ea580c; }
+        .text-cookly { color: #f97316; }
+        .border-cookly { border-color: #f97316; }
+        .hover-bg-cookly:hover { background: #f97316; }
+        
+        /* Botones */
+        .btn-primary {
+            background: #f97316;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background: #ea580c;
+            transform: scale(1.02);
+        }
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        /* Pestañas */
+        .tab-active {
+            background: #f97316;
+            color: white;
+        }
+        .tab-inactive {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        /* Tarjetas */
+        .card-receta {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .card-receta:active {
+            transform: scale(0.97);
+        }
+        
+        /* Etiquetas de categoría */
+        .badge-categoria {
+            font-size: 0.65rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        .badge-pescado { background: #93c5fd; color: #1e3a5f; }
+        .badge-carne { background: #fca5a5; color: #7f1d1d; }
+        .badge-vegetariano { background: #86efac; color: #14532d; }
+        .badge-pasta { background: #fde047; color: #713f12; }
+        .badge-pollo { background: #fdba74; color: #7c2d12; }
+        .badge-sopa { background: #fcd34d; color: #713f12; }
+        .badge-ensalada { background: #6ee7b7; color: #064e3b; }
+        .badge-otro { background: #d1d5db; color: #1f2937; }
+        
+        /* Ventana modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s;
+        }
+        .modal-contenido {
+            background: white;
+            margin: 10% auto;
+            padding: 24px;
+            max-width: 500px;
+            border-radius: 16px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Barra de desplazamiento personalizada */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 10px;
+        }
+        
+        /* Ingredientes seleccionados */
+        .chip-ingrediente {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chip-ingrediente .eliminar {
+            cursor: pointer;
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .chip-ingrediente .eliminar:hover {
+            color: #991b1b;
+        }
+        
+        /* Botón flotante */
+        .btn-flotante {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #f97316;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        .btn-flotante:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+        }
+        .btn-flotante:active {
+            transform: scale(0.9);
+        }
+        
+        /* Estado de conexión */
+        .estado-online { color: #22c55e; }
+        .estado-offline { color: #ef4444; }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            #app { padding: 12px; }
+            .modal-contenido { margin: 5% 10px; padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- ===== ENCABEZADO ===== -->
+    <header class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🍳</span>
+            <h1 class="text-2xl font-bold" style="color: #f97316;">Cookly</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="estadoConexion" class="text-xs estado-online">🟢 En línea</span>
+            <button id="btnSync" class="btn-primary text-sm px-3 py-1 rounded-full">
+                <i class="fas fa-sync-alt"></i> Sincronizar
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== SUBTÍTULO ===== -->
+    <p class="text-sm text-gray-500 mb-4 text-center">Cocina inteligente, come delicioso ✨</p>
+
+    <!-- ===== PESTAÑAS ===== -->
+    <div class="flex gap-1 bg-gray-200 p-1 rounded-xl mb-4">
+        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-active" data-tab="plan">📅 Plan</button>
+        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="recetas">📖 Recetas</button>
+        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="despensa">🛒 Despensa</button>
+        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="innovaciones">✨ IA</button>
+    </div>
+
+    <!-- ===== PESTAÑA: PLAN SEMANAL ===== -->
+    <div id="tab-plan" class="tab-content">
+        <div class="flex justify-between items-center mb-3">
+            <h2 class="text-lg font-semibold">Semana del <span id="semanaFecha" class="text-cookly">Lunes</span></h2>
+            <button id="btnAgregarComida" class="btn-primary text-sm">
+                <i class="fas fa-plus"></i> Agregar
+            </button>
+        </div>
+        <div id="planSemanalContainer"></div>
+    </div>
+
+    <!-- ===== PESTAÑA: RECETAS ===== -->
+    <div id="tab-recetas" class="tab-content hidden">
+        <div class="flex gap-2 mb-3 overflow-x-auto pb-2">
+            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="todas">Todas</button>
+            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="pescado">🐟 Pescado</button>
+            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="carne">🥩 Carne</button>
+            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="vegetariano">🥗 Vegetariano</button>
+            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="pasta">🍝 Pasta</button>
+            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="pollo">🍗 Pollo</button>
+            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="sopa">🥣 Sopa</button>
+        </div>
+        <div id="recetasContainer" class="grid grid-cols-1 gap-3"></div>
+    </div>
+
+    <!-- ===== PESTAÑA: DESPENSA ===== -->
+    <div id="tab-despensa" class="tab-content hidden">
+        <!-- Buscador por ingredientes -->
+        <div class="bg-white rounded-xl p-4 shadow-sm mb-4">
+            <h3 class="font-semibold text-lg mb-2">🔍 Buscar por ingredientes</h3>
+            <div class="flex flex-wrap gap-2 mb-3" id="ingredientesSeleccionados"></div>
+            <div class="flex gap-2">
+                <input type="text" id="inputIngrediente" placeholder="Escribe un ingrediente..." 
+                       class="flex-1 p-2 border rounded-lg text-sm" list="listaIngredientes" />
+                <datalist id="listaIngredientes"></datalist>
+                <button id="btnAgregarIngrediente" class="btn-primary text-sm px-4">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+                <button id="btnBuscarRecetas" class="btn-primary text-sm px-4">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+            <button id="btnLimpiarIngredientes" class="text-xs text-red-500 mt-2 hover:text-red-700">
+                <i class="fas fa-trash"></i> Limpiar todo
+            </button>
+        </div>
+
+        <!-- Resultados de búsqueda -->
+        <div id="resultadosPorIngredientes" class="space-y-3 mb-4"></div>
+
+        <!-- Lista de compras -->
+        <div>
+            <h3 class="font-semibold text-lg mb-2">🛒 Lista de Compras</h3>
+            <input type="text" id="buscarIngrediente" placeholder="Buscar ingrediente..." class="w-full p-2 border rounded-lg mb-3 text-sm" />
+            <div id="despensaContainer" class="space-y-2"></div>
+            <button id="btnCompartirLista" class="w-full btn-primary py-2 rounded-lg mt-3">
+                <i class="fas fa-share-alt"></i> Compartir Lista
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== PESTAÑA: IA E INNOVACIONES ===== -->
+    <div id="tab-innovaciones" class="tab-content hidden">
+        <h2 class="text-lg font-semibold mb-3">🧠 Recomendaciones Inteligentes</h2>
+        <div id="recomendacionesContainer"></div>
+        <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
+            <h3 class="font-semibold">📊 Radar de Consumo</h3>
+            <div id="radarConsumo" class="h-40 bg-white rounded-lg mt-2 flex items-center justify-center">
+                <span class="text-gray-400">Cargando datos...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== BOTÓN FLOTANTE: ESCANEAR RECETA ===== -->
+    <button id="btnEscanearReceta" class="btn-flotante">
+        <i class="fas fa-camera"></i>
+    </button>
+
+    <!-- ===== VENTANA MODAL: ESCANEAR RECETA ===== -->
+    <div id="modalEscanear" class="modal">
+        <div class="modal-contenido">
+            <div class="flex justify-between items-start mb-3">
+                <h3 class="text-xl font-bold">📸 Pegar texto de receta</h3>
+                <button id="btnCerrarModal" class="text-gray-500 text-2xl hover:text-gray-700">&times;</button>
+            </div>
+            <textarea id="textoReceta" rows="6" class="w-full p-2 border rounded-lg" placeholder="Pega aquí el texto de la receta (nombre, ingredientes, instrucciones)..."></textarea>
+            <div class="flex gap-2 mt-3">
+                <button id="btnProcesarTexto" class="btn-primary flex-1">Procesar</button>
+                <button id="btnCerrarModal2" class="btn-secondary flex-1">Cancelar</button>
+            </div>
+            <div id="resultadoParse" class="mt-3 text-sm"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ===== JAVASCRIPT COMPLETO ===== -->
+<!-- ============================================================ -->
+<script>
+// ===== CONFIGURACIÓN BASEROW =====
+const BASEROW_API = 'https://api.baserow.io/api/database/rows/table/';
+const TABLA_RECETAS = '1119570'; // Reemplaza con tu ID
+const TABLA_INGREDIENTES = '1119597';
+const TABLA_PLAN = '1119572';
+const TABLA_HISTORIAL = '1119598';
+const TOKEN = 'REEMPLAZA_CON_TU_TOKEN_DE_BASEROW'; 
+
+// ===== ESTADO GLOBAL =====
+let estado = {
+    recetas: [],
+    ingredientes: [],
+    planSemanal: [],
+    historial: [],
+    categoriaActiva: 'todas',
+};
+
+let ingredientesDisponibles = [];
+
+// ===== FUNCIONES BASE =====
+async function fetchBaserow(tableId) {
+    try {
+        const res = await fetch(`${BASEROW_API}${tableId}/?user_field_names=true`, {
+            headers: { 'Authorization': `Token ${TOKEN}` }
+        });
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        return await res.json();
+    } catch (error) {
+        console.error('Error obteniendo datos de Baserow:', error);
+        return { results: [] };
+    }
+}
+
+async function postBaserow(tableId, data) {
+    try {
+        const res = await fetch(`${BASEROW_API}${tableId}/?user_field_names=true`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Token ${TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        return await res.json();
+    } catch (error) {
+        console.error('Error enviando a Baserow:', error);
+        throw error;
+    }
+}
+
+// ===== SINCAR DATOS =====
+async function sincronizarTodo() {
+    const btn = document.getElementById('btnSync');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
+    btn.disabled = true;
+    
+    try {
+        const [recetas, ingredientes, plan, historial] = await Promise.all([
+            fetchBaserow(TABLA_RECETAS),
+            fetchBaserow(TABLA_INGREDIENTES),
+            fetchBaserow(TABLA_PLAN),
+            fetchBaserow(TABLA_HISTORIAL)
+        ]);
+        
+        estado.recetas = recetas.results || [];
+        estado.ingredientes = ingredientes.results || [];
+        estado.planSemanal = plan.results || [];
+        estado.historial = historial.results || [];
+        
+        renderizarTodo();
+        actualizarListaIngredientes();
+        
+    } catch(e) {
+        console.error('Error al sincronizar:', e);
+        alert('⚠️ Error sincronizando datos. Verifica tu conexión.');
+    }
+    
+    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
+    btn.disabled = false;
+}
+
+// ===== RENDERIZADO PRINCIPAL =====
+function renderizarTodo() {
+    renderizarPlanSemanal();
+    renderizarRecetas();
+    renderizarDespensa();
+    renderizarRecomendaciones();
+}
+
+// ===== PLAN SEMANAL =====
+function renderizarPlanSemanal() {
+    const container = document.getElementById('planSemanalContainer');
+    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const hoy = new Date();
+    const inicioSemana = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + 1));
+    
+    // Actualizar fecha
+    document.getElementById('semanaFecha').textContent = inicioSemana.toLocaleDateString('es', { month: 'long', day: 'numeric' });
+
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+        const fecha = new Date(inicioSemana);
+        fecha.setDate(fecha.getDate() + i);
+        const fechaStr = fecha.toISOString().split('T')[0];
+        const comidasDelDia = estado.planSemanal.filter(p => p.Fecha === fechaStr);
+        
+        html += `<div class="bg-white rounded-xl p-3 mb-3 shadow-sm border-l-4 border-cookly">
+            <div class="flex justify-between items-center">
+                <span class="font-bold">${dias[i]}</span>
+                <span class="text-sm text-gray-500">${fechaStr}</span>
+            </div>
+            <div class="mt-2 space-y-2">
+                ${['desayuno', 'almuerzo', 'cena'].map(tipo => {
+                    const comida = comidasDelDia.find(c => c.Comida === tipo);
+                    const receta = comida ? estado.recetas.find(r => r.id === comida.Receta) : null;
+                    return `<div class="flex justify-between items-center text-sm">
+                        <span class="capitalize w-20 text-gray-600">${tipo}</span>
+                        ${receta ? 
+                            `<span class="bg-orange-50 text-orange-800 px-2 py-1 rounded-lg flex-1 ml-2">${receta.Nombre}</span>` :
+                            `<button class="btn-agregar-comida text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded-lg" data-fecha="${fechaStr}" data-comida="${tipo}">+ Agregar</button>`
+                        }
+                        ${receta ? `<button class="btn-cambiar-comida text-xs text-orange-500 hover:text-orange-700 ml-1" data-receta="${receta.id}" data-fecha="${fechaStr}" data-comida="${tipo}"><i class="fas fa-exchange-alt"></i></button>` : ''}
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>`;
+    }
+    container.innerHTML = html;
+
+    document.querySelectorAll('.btn-agregar-comida').forEach(btn => {
+        btn.onclick = () => agregarComidaRapida(btn.dataset.fecha, btn.dataset.comida);
+    });
+    document.querySelectorAll('.btn-cambiar-comida').forEach(btn => {
+        btn.onclick = () => cambiarComida(btn.dataset.receta, btn.dataset.fecha, btn.dataset.comida);
+    });
+}
+
+async function agregarComidaRapida(fecha, tipo) {
+    if (estado.recetas.length === 0) {
+        alert('No hay recetas disponibles. ¡Agrega algunas primero!');
+        return;
+    }
+    const recetasDisponibles = estado.recetas.map((r, i) => `${i+1}: ${r.Nombre}`).join('\n');
+    const seleccion = prompt(`Selecciona una receta (número) para ${tipo} el ${fecha}:\n${recetasDisponibles}`);
+    if (seleccion) {
+        const idx = parseInt(seleccion) - 1;
+        const receta = estado.recetas[idx];
+        if (receta) {
+            try {
+                await postBaserow(TABLA_PLAN, {
+                    Fecha: fecha,
+                    Comida: tipo,
+                    Receta: receta.id,
+                    '¿Completado?': false
+                });
+                sincronizarTodo();
+            } catch (e) {
+                alert('Error al agregar al plan. Intenta de nuevo.');
+            }
+        }
+    }
+}
+
+async function cambiarComida(recetaId, fecha, tipo) {
+    const otrasRecetas = estado.recetas.filter(r => r.id !== recetaId);
+    if (otrasRecetas.length === 0) {
+        alert('No hay otras recetas disponibles.');
+        return;
+    }
+    const opciones = otrasRecetas.map((r, i) => `${i+1}: ${r.Nombre}`).join('\n');
+    const seleccion = prompt(`Reemplazar con:\n${opciones}`);
+    if (seleccion) {
+        const idx = parseInt(seleccion) - 1;
+        if (otrasRecetas[idx]) {
+            const planActual = estado.planSemanal.find(p => p.Fecha === fecha && p.Comida === tipo);
+            if (planActual) {
+                try {
+                    await fetch(`${BASEROW_API}${TABLA_PLAN}/${planActual.id}/?user_field_names=true`, {
+                        method: 'PATCH',
+                        headers: { 'Authorization': `Token ${TOKEN}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ Receta: otrasRecetas[idx].id })
+                    });
+                    sincronizarTodo();
+                } catch (e) {
+                    alert('Error al cambiar la receta.');
+                }
+            }
+        }
+    }
+}
+
+// ===== RECETAS CON FILTROS =====
+function renderizarRecetas() {
+    const container = document.getElementById('recetasContainer');
+    const filtradas = estado.categoriaActiva === 'todas' ? estado.recetas : estado.recetas.filter(r => r.Categoría === estado.categoriaActiva);
+    
+    if (filtradas.length === 0) {
+        container.innerHTML = `<div class="text-center text-gray-500 py-8">No hay recetas. ¡Agrega algunas! 🍳</div>`;
+        return;
+    }
+    
+    container.innerHTML = filtradas.map(receta => `
+        <div class="card-receta bg-white rounded-xl p-3 shadow-sm border-l-4 ${getColorCategoria(receta.Categoría)}">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-bold">${receta.Nombre}</h3>
+                    <span class="badge-categoria ${getBadgeClass(receta.Categoría)}">${receta.Categoría || 'Sin categoría'}</span>
+                    <span class="text-xs text-gray-500 ml-2">⏱ ${receta.Tiempo || 30}min</span>
+                </div>
+                <button class="btn-usar-receta text-orange-500 hover:text-orange-700" data-id="${receta.id}"><i class="fas fa-plus-circle text-xl"></i></button>
+            </div>
+            <p class="text-sm text-gray-600 mt-1">${receta.Ingredientes ? receta.Ingredientes.split('\n').slice(0,3).join(', ') : ''}</p>
+        </div>
+    `).join('');
+
+    document.querySelectorAll('.btn-usar-receta').forEach(btn => {
+        btn.onclick = () => {
+            const receta = estado.recetas.find(r => r.id === parseInt(btn.dataset.id));
+            if (receta) agregarAlPlan(receta);
+        };
+    });
+}
+
+function getColorCategoria(cat) {
+    const colores = { 
+        pescado: 'border-blue-400', 
+        carne: 'border-red-400', 
+        vegetariano: 'border-green-400', 
+        pasta: 'border-yellow-400',
+        pollo: 'border-orange-400',
+        sopa: 'border-yellow-500',
+        ensalada: 'border-green-500'
+    };
+    return colores[cat?.toLowerCase()] || 'border-gray-300';
+}
+
+function getBadgeClass(cat) {
+    const clases = {
+        pescado: 'badge-pescado',
+        carne: 'badge-carne',
+        vegetariano: 'badge-vegetariano',
+        pasta: 'badge-pasta',
+        pollo: 'badge-pollo',
+        sopa: 'badge-sopa',
+        ensalada: 'badge-ensalada'
+    };
+    return clases[cat?.toLowerCase()] || 'badge-otro';
+}
+
+// ===== DESPENSA =====
+function renderizarDespensa() {
+    const container = document.getElementById('despensaContainer');
+    const idsRecetasPlan = [...new Set(estado.planSemanal.map(p => p.Receta))];
+    const recetasEnPlan = estado.recetas.filter(r => idsRecetasPlan.includes(r.id));
+    
+    let ingredientesMap = new Map();
+    recetasEnPlan.forEach(receta => {
+        if (receta.Ingredientes) {
+            receta.Ingredientes.split('\n').forEach(line => {
+                const match = line.match(/^([\d.]+)\s*(\w+)\s*(.+)$/);
+                if (match) {
+                    const [, cantidad, unidad, nombre] = match;
+                    const key = nombre.trim().toLowerCase();
+                    if (!ingredientesMap.has(key)) {
+                        ingredientesMap.set(key, { nombre: nombre.trim(), cantidad: 0, unidad, recetas: [] });
+                    }
+                    const item = ingredientesMap.get(key);
+                    item.cantidad += parseFloat(cantidad);
+                    item.recetas.push(receta.Nombre);
+                }
+            });
+        }
+    });
+
+    if (ingredientesMap.size === 0) {
+        container.innerHTML = `<div class="text-center text-gray-400 py-4">Sin ingredientes en tu plan semanal</div>`;
+        return;
+    }
+
+    container.innerHTML = [...ingredientesMap.values()].map(item => `
+        <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition">
+            <input type="checkbox" class="ingrediente-check h-5 w-5 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
+            <div class="flex-1">
+                <span class="font-medium">${item.nombre}</span>
+                <span class="text-sm text-gray-500 ml-2">${item.cantidad.toFixed(1)} ${item.unidad}</span>
+                <div class="text-xs text-gray-400">${item.recetas.join(', ')}</div>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('buscarIngrediente').oninput = (e) => {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('#despensaContainer .flex').forEach(el => {
+            el.style.display = el.textContent.toLowerCase().includes(term) ? 'flex' : 'none';
+        });
+    };
+}
+
+// ===== BÚSQUEDA POR INGREDIENTES =====
+function actualizarListaIngredientes() {
+    const datalist = document.getElementById('listaIngredientes');
+    const todosIngredientes = new Set();
+    
+    estado.recetas.forEach(receta => {
+        if (receta.Ingredientes) {
+            receta.Ingredientes.split('\n').forEach(line => {
+                const match = line.match(/^[\d.]*\s*\w*\s*(.+)$/);
+                if (match) {
+                    const nombre = match[1].trim().toLowerCase();
+                    todosIngredientes.add(nombre);
+                }
+            });
+        }
+    });
+    
+    datalist.innerHTML = [...todosIngredientes].map(nombre => 
+        `<option value="${nombre}">`
+    ).join('');
+}
+
+document.getElementById('btnAgregarIngrediente').addEventListener('click', () => {
+    const input = document.getElementById('inputIngrediente');
+    const valor = input.value.trim().toLowerCase();
+    if (valor && !ingredientesDisponibles.includes(valor)) {
+        ingredientesDisponibles.push(valor);
+        input.value = '';
+        renderizarIngredientesSeleccionados();
+        if (ingredientesDisponibles.length > 0) {
+            buscarRecetasPorIngredientes();
+        }
+    }
+});
+
+document.getElementById('inputIngrediente').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('btnAgregarIngrediente').click();
+    }
+});
+
+document.getElementById('btnLimpiarIngredientes').addEventListener('click', () => {
+    ingredientesDisponibles = [];
+    renderizarIngredientesSeleccionados();
+    document.getElementById('resultadosPorIngredientes').innerHTML = '';
+});
+
+function renderizarIngredientesSeleccionados() {
+    const container = document.getElementById('ingredientesSeleccionados');
+    if (ingredientesDisponibles.length === 0) {
+        container.innerHTML = `<span class="text-gray-400 text-sm">Ningún ingrediente seleccionado</span>`;
+        return;
+    }
+    container.innerHTML = ingredientesDisponibles.map(ing => `
+        <span class="chip-ingrediente">
+            ${ing}
+            <span class="eliminar" data-ing="${ing}">×</span>
+        </span>
+    `).join('');
+
+    document.querySelectorAll('.eliminar').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const ing = btn.dataset.ing;
+            ingredientesDisponibles = ingredientesDisponibles.filter(i => i !== ing);
+            renderizarIngredientesSeleccionados();
+            if (ingredientesDisponibles.length > 0) {
+                buscarRecetasPorIngredientes();
+            } else {
+                document.getElementById('resultadosPorIngredientes').innerHTML = '';
+            }
+        });
+    });
+}
+
+function buscarRecetasPorIngredientes() {
+    if (ingredientesDisponibles.length === 0) {
+        document.getElementById('resultadosPorIngredientes').innerHTML = 
+            '<p class="text-gray-400 text-center">Agrega ingredientes para buscar recetas</p>';
+        return;
+    }
+
+    const resultados = estado.recetas.map(receta => {
+        let coincidencias = 0;
+        let ingredientesFaltantes = [];
+        let ingredientesReceta = [];
+
+        if (receta.Ingredientes) {
+            ingredientesReceta = receta.Ingredientes.split('\n').map(line => {
+                const match = line.match(/^[\d.]*\s*\w*\s*(.+)$/);
+                return match ? match[1].trim().toLowerCase() : line.trim().toLowerCase();
+            });
+
+            ingredientesReceta.forEach(ingReceta => {
+                const coincide = ingredientesDisponibles.some(ingDisp => 
+                    ingReceta.includes(ingDisp) || ingDisp.includes(ingReceta)
+                );
+                if (coincide) {
+                    coincidencias++;
+                } else {
+                    ingredientesFaltantes.push(ingReceta);
+                }
+            });
+        }
+
+        const porcentajeCoincidencia = ingredientesReceta.length > 0 
+            ? Math.round((coincidencias / ingredientesReceta.length) * 100) 
+            : 0;
+
+        return {
+            ...receta,
+            coincidencias,
+            totalIngredientes: ingredientesReceta.length,
+            porcentaje: porcentajeCoincidencia,
+            ingredientesFaltantes: ingredientesFaltantes.slice(0, 5)
+        };
+    });
+
+    resultados.sort((a, b) => b.porcentaje - a.porcentaje);
+    const resultadosFiltrados = resultados.filter(r => r.coincidencias > 0);
+
+    const container = document.getElementById('resultadosPorIngredientes');
+    
+    if (resultadosFiltrados.length === 0) {
+        container.innerHTML = `
+            <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                <p class="text-yellow-800">😅 No se encontraron recetas con esos ingredientes</p>
+                <p class="text-sm text-gray-600 mt-1">Prueba agregando más ingredientes o revisa la ortografía</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+            <h4 class="font-semibold">📋 ${resultadosFiltrados.length} recetas encontradas</h4>
+            <span class="text-xs text-gray-500">Mejores coincidencias primero</span>
+        </div>
+        ${resultadosFiltrados.map(receta => `
+            <div class="bg-white rounded-xl p-3 shadow-sm border-l-4 ${getColorCategoria(receta.Categoría)}">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="font-bold">${receta.Nombre}</h3>
+                            <span class="badge-categoria ${getBadgeClass(receta.Categoría)}">${receta.Categoría || 'Sin categoría'}</span>
+                        </div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <div class="w-24 bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: ${receta.porcentaje}%"></div>
+                            </div>
+                            <span class="text-xs font-medium">${receta.porcentaje}% coincide</span>
+                            <span class="text-xs text-gray-500">(${receta.coincidencias}/${receta.totalIngredientes})</span>
+                        </div>
+                        ${receta.ingredientesFaltantes.length > 0 ? `
+                            <div class="mt-1">
+                                <span class="text-xs text-red-500">Te falta:</span>
+                                <span class="text-xs text-gray-600">${receta.ingredientesFaltantes.join(', ')}</span>
+                            </div>
+                        ` : `
+                            <div class="mt-1">
+                                <span class="text-xs text-green-500">✅ ¡Tienes todos los ingredientes!</span>
+                            </div>
+                        `}
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <button class="btn-usar-receta-result text-orange-500 text-sm" data-id="${receta.id}">
+                            <i class="fas fa-plus-circle"></i> Plan
+                        </button>
+                        <button class="btn-ver-receta text-gray-500 text-sm" data-id="${receta.id}">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('')}
+    `;
+
+    document.querySelectorAll('#resultadosPorIngredientes .btn-usar-receta-result').forEach(btn => {
+        btn.onclick = () => {
+            const receta = estado.recetas.find(r => r.id === parseInt(btn.dataset.id));
+            if (receta) agregarAlPlan(receta);
+        };
+    });
+
+    document.querySelectorAll('#resultadosPorIngredientes .btn-ver-receta').forEach(btn => {
+        btn.onclick = () => {
+            const receta = estado.recetas.find(r => r.id === parseInt(btn.dataset.id));
+            if (receta) mostrarDetalleReceta(receta);
+        };
+    });
+}
+
+document.getElementById('btnBuscarRecetas').addEventListener('click', buscarRecetasPorIngredientes);
+
+// ===== DETALLE DE RECETA =====
+function mostrarDetalleReceta(receta) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'block';
+    modal.innerHTML = `
+        <div class="modal-contenido">
+            <div class="flex justify-between items-start">
+                <h3 class="text-xl font-bold">${receta.Nombre}</h3>
+                <button class="cerrar-detalle text-gray-500 text-2xl hover:text-gray-700">&times;</button>
+            </div>
+            <div class="flex gap-2 my-2 flex-wrap">
+                <span class="badge-categoria ${getBadgeClass(receta.Categoría)}">${receta.Categoría || 'Sin categoría'}</span>
+                <span class="badge-categoria bg-gray-200">⏱ ${receta.Tiempo || 30} min</span>
+                <span class="badge-categoria bg-gray-200">${receta.Dificultad || 'Media'}</span>
+            </div>
+            <div class="mt-3">
+                <h4 class="font-semibold">📝 Ingredientes</h4>
+                <ul class="list-disc pl-5 text-sm">
+                    ${receta.Ingredientes ? receta.Ingredientes.split('\n').map(i => `<li>${i}</li>`).join('') : '<li>No especificados</li>'}
+                </ul>
+            </div>
+            <div class="mt-3">
+                <h4 class="font-semibold">👨‍🍳 Instrucciones</h4>
+                <p class="text-sm text-gray-700">${receta.Instrucciones || 'Sin instrucciones'}</p>
+            </div>
+            <div class="flex gap-2 mt-4">
+                <button class="btn-agregar-plan-detalle btn-primary flex-1" data-id="${receta.id}">
+                    <i class="fas fa-plus"></i> Agregar al Plan
+                </button>
+                <button class="btn-cerrar-detalle btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.querySelector('.cerrar-detalle, .btn-cerrar-detalle').onclick = () => modal.remove();
+    modal.querySelector('.btn-agregar-plan-detalle').onclick = () => {
+        agregarAlPlan(receta);
+        modal.remove();
+    };
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+}
+
+// ===== RECOMENDACIONES =====
+function renderizarRecomendaciones() {
+    const container = document.getElementById('recomendacionesContainer');
+    const consumoPorReceta = {};
+    estado.historial.forEach(h => {
+        consumoPorReceta[h.Receta] = (consumoPorReceta[h.Receta] || 0) + h.Veces_comido;
+    });
+
+    const recetasOrdenadas = [...estado.recetas].sort((a, b) => {
+        const consumoA = consumoPorReceta[a.id] || 0;
+        const consumoB = consumoPorReceta[b.id] || 0;
+        return consumoA - consumoB;
+    });
+
+    const topPocoConsumidas = recetasOrdenadas.slice(0, 3);
+    
+    container.innerHTML = `
+        <div class="bg-white p-3 rounded-xl shadow-sm mb-3">
+            <h3 class="font-semibold">🔥 Menos consumidas (prioridad)</h3>
+            ${topPocoConsumidas.map(r => `
+                <div class="flex justify-between items-center mt-2 p-2 bg-red-50 rounded-lg">
+                    <span>${r.Nombre}</span>
+                    <span class="text-sm bg-red-200 px-2 py-1 rounded-full">${consumoPorReceta[r.id] || 0} veces</span>
+                    <button class="btn-agregar-plan-recomendacion text-orange-500 text-sm" data-id="${r.id}">+ Plan</button>
+                </div>
+            `).join('')}
+        </div>
+        <div class="bg-white p-3 rounded-xl shadow-sm">
+            <h3 class="font-semibold">🧠 Sugerencia del día</h3>
+            <p class="text-sm text-gray-600">Basado en tu despensa, prueba: <strong>${recetasOrdenadas[0]?.Nombre || 'Ninguna aún'}</strong></p>
+        </div>
+    `;
+
+    document.querySelectorAll('.btn-agregar-plan-recomendacion').forEach(btn => {
+        btn.onclick = () => {
+            const receta = estado.recetas.find(r => r.id === parseInt(btn.dataset.id));
+            if (receta) agregarAlPlan(receta);
+        };
+    });
+
+    // Radar de consumo
+    const categorias = ['pescado', 'carne', 'vegetariano', 'pasta', 'pollo', 'sopa'];
+    const consumoCat = categorias.map(cat => {
+        const recetasCat = estado.recetas.filter(r => r.Categoría?.toLowerCase() === cat);
+        const total = recetasCat.reduce((sum, r) => sum + (consumoPorReceta[r.id] || 0), 0);
+        return { categoria: cat, total };
+    });
+    
+    const maxConsumo = Math.max(...consumoCat.map(c => c.total), 1);
+    const emojis = { pescado: '🐟', carne: '🥩', vegetariano: '🥗', pasta: '🍝', pollo: '🍗', sopa: '🥣' };
+    
+    document.getElementById('radarConsumo').innerHTML = `
+        <div class="w-full grid grid-cols-3 md:grid-cols-6 gap-2 text-center">
+            ${consumoCat.map(c => `
+                <div>
+                    <div class="text-2xl">${emojis[c.categoria] || '🍽️'}</div>
+                    <div class="h-16 bg-gray-200 rounded-lg relative mt-1">
+                        <div class="absolute bottom-0 left-0 w-full bg-orange-400 rounded-lg transition-all" style="height: ${maxConsumo > 0 ? (c.total/maxConsumo)*100 : 0}%"></div>
+                    </div>
+                    <span class="text-xs">${c.total}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// ===== FUNCIONES AUXILIARES =====
+async function agregarAlPlan(receta) {
+    if (!receta) return;
+    const fecha = new Date().toISOString().split('T')[0];
+    const tipo = prompt('¿Desayuno, Almuerzo o Cena?', 'almuerzo');
+    if (tipo && ['desayuno','almuerzo','cena'].includes(tipo.toLowerCase())) {
+        try {
+            await postBaserow(TABLA_PLAN, {
+                Fecha: fecha,
+                Comida: tipo.toLowerCase(),
+                Receta: receta.id,
+                '¿Completado?': false
+            });
+            sincronizarTodo();
+        } catch (e) {
+            alert('Error al agregar al plan.');
+        }
+    }
+}
+
+// ===== ESCÁNER DE RECETAS =====
+function parsearReceta(texto) {
+    const lines = texto.split('\n').filter(l => l.trim());
+    const nombre = lines[0]?.trim() || 'Receta sin nombre';
+    
+    const idxIngredientes = lines.findIndex(l => /ingredientes?/i.test(l));
+    const idxInstrucciones = lines.findIndex(l => /instrucciones?|preparación|modo/i.test(l));
+    
+    const ingredientes = [];
+    let instrucciones = [];
+    
+    if (idxIngredientes !== -1 && idxInstrucciones !== -1) {
+        for (let i = idxIngredientes+1; i < idxInstrucciones; i++) {
+            if (lines[i].trim()) ingredientes.push(lines[i].trim());
+        }
+        for (let i = idxInstrucciones+1; i < lines.length; i++) {
+            if (lines[i].trim()) instrucciones.push(lines[i].trim());
+        }
+    } else {
+        lines.slice(1).forEach(line => {
+            if (/\d/.test(line) && /gr|kg|l|ml|ud|pieza|taza|cuchara|unidad|gramos|litro/i.test(line)) {
+                ingredientes.push(line);
+            } else {
+                instrucciones.push(line);
+            }
+        });
+    }
+
+    return {
+        Nombre: nombre,
+        Ingredientes: ingredientes.join('\n'),
+        Instrucciones: instrucciones.join('\n'),
+        Categoría: detectarCategoria(nombre + ' ' + ingredientes.join(' ')),
+        Tiempo: parseInt(extraerTiempo(texto)) || 30,
+        Dificultad: 'Media'
+    };
+}
+
+function detectarCategoria(texto) {
+    const lower = texto.toLowerCase();
+    if (/pescado|salmón|atún|merluza|bacalao|trucha|sardina/i.test(lower)) return 'pescado';
+    if (/pollo|pavo|pato|pechuga|muslo|contramuslo/i.test(lower)) return 'pollo';
+    if (/cerdo|ternera|res|cordero|bistec|chuleta|filete|costilla/i.test(lower)) return 'carne';
+    if (/vegetariano|tofu|seitán|tempeh|garbanzo|lenteja|quinoa|soja/i.test(lower)) return 'vegetariano';
+    if (/pasta|espagueti|fideos|macarrones|tallarines|spaghetti|fettuccine/i.test(lower)) return 'pasta';
+    if (/sopa|caldo|crema|puré|potaje|guiso|estofado/i.test(lower)) return 'sopa';
+    if (/ensalada|lechuga|espinaca|rúcula|canónigos|mix|verduras|hortalizas/i.test(lower)) return 'ensalada';
+    return 'otro';
+}
+
+function extraerTiempo(texto) {
+    const match = texto.match(/(\d+)\s*(min|hora|hr|minutos)/i);
+    return match ? match[1] : 30;
+}
+
+// ===== EVENTOS =====
+document.addEventListener('DOMContentLoaded', () => {
+    sincronizarTodo();
+
+    // Pestañas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.className = b.className.replace('tab-active', 'tab-inactive');
+            });
+            btn.className = btn.className.replace('tab-inactive', 'tab-active');
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${btn.dataset.tab}`).classList.remove('hidden');
+        };
+    });
+
+    // Filtros de categoría
+    document.querySelectorAll('.filtro-categoria').forEach(btn => {
+        btn.onclick = () => {
+            estado.categoriaActiva = btn.dataset.cat;
+            document.querySelectorAll('.filtro-categoria').forEach(b => {
+                b.className = b.className.replace('bg-orange-600 text-white', 'bg-orange-100');
+            });
+            btn.className += ' bg-orange-600 text-white';
+            renderizarRecetas();
+        };
+    });
+    document.querySelector('.filtro-categoria[data-cat="todas"]')?.classList.add('bg-orange-600', 'text-white');
+
+    // Modal escáner
+    document.getElementById('btnEscanearReceta').onclick = () => {
+        document.getElementById('modalEscanear').style.display = 'block';
+    };
+    document.getElementById('btnCerrarModal').onclick = () => {
+        document.getElementById('modalEscanear').style.display = 'none';
+    };
+    document.getElementById('btnCerrarModal2').onclick = () => {
+        document.getElementById('modalEscanear').style.display = 'none';
+    };
+    
+    document.getElementById('btnProcesarTexto').onclick = async () => {
+        const texto = document.getElementById('textoReceta').value;
+        if (!texto) return alert('¡Pega una receta primero!');
+        const recetaParseada = parsearReceta(texto);
+        document.getElementById('resultadoParse').innerHTML = `
+            <div class="bg-green-50 p-3 rounded-lg">
+                <p><strong>${recetaParseada.Nombre}</strong></p>
+                <p class="text-sm">Categoría: ${recetaParseada.Categoría} | Tiempo: ${recetaParseada.Tiempo}min</p>
+                <p class="text-xs mt-1 text-gray-600">${recetaParseada.Ingredientes.split('\n').slice(0,2).join(', ')}...</p>
+                <button id="btnGuardarParse" class="mt-2 btn-primary text-sm px-4 py-1">Guardar Receta</button>
+            </div>
+        `;
+        document.getElementById('btnGuardarParse').onclick = async () => {
+            try {
+                await postBaserow(TABLA_RECETAS, recetaParseada);
+                document.getElementById('modalEscanear').style.display = 'none';
+                document.getElementById('textoReceta').value = '';
+                document.getElementById('resultadoParse').innerHTML = '';
+                sincronizarTodo();
+                alert('✅ ¡Receta guardada con éxito!');
+            } catch (e) {
+                alert('Error al guardar la receta.');
+            }
+        };
+    };
+
+    // Compartir lista
+    document.getElementById('btnCompartirLista').onclick = () => {
+        const items = document.querySelectorAll('#despensaContainer .flex');
+        const texto = [...items].map(el => el.textContent.trim()).join('\n');
+        if (navigator.share) {
+            navigator.share({ title: 'Lista de Compras Cookly', text: texto });
+        } else {
+            navigator.clipboard.writeText(texto).then(() => alert('¡Lista copiada al portapapeles!'));
+        }
+    };
+
+    // Sincronizar manual
+    document.getElementById('btnSync').onclick = sincronizarTodo;
+});
+
+// ===== REGISTRAR SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('✅ Service Worker registrado con éxito:', registration);
+            })
+            .catch(error => {
+                console.log('❌ Error al registrar Service Worker:', error);
+            });
+    });
+}
+
+// ===== DETECTAR MODO OFFLINE =====
+window.addEventListener('online', () => {
+    const estadoEl = document.getElementById('estadoConexion');
+    estadoEl.textContent = '🟢 En línea';
+    estadoEl.className = 'text-xs estado-online';
+});
+
+window.addEventListener('offline', () => {
+    const estadoEl = document.getElementById('estadoConexion');
+    estadoEl.textContent = '🔴 Sin conexión';
+    estadoEl.className = 'text-xs estado-offline';
+});
+
+// Verificar estado inicial
+if (!navigator.onLine) {
+    document.getElementById('estadoConexion').textContent = '🔴 Sin conexión';
+    document.getElementById('estadoConexion').className = 'text-xs estado-offline';
+}
+</script>
+
+</body>
+</html>
