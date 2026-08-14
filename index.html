@@ -747,7 +747,21 @@ const TABLA_INGREDIENTES = '1119597';
 const TABLA_PLAN = '1119572';
 const TABLA_HISTORIAL = '1119598';
 const TABLA_LISTA_COMPRAS = '1134840';
-const TOKEN = (window.BASEROW_TOKEN || localStorage.getItem('BASEROW_TOKEN') || '');
+
+function obtenerTokenBaserow() {
+    const tokenGuardado = window.BASEROW_TOKEN || localStorage.getItem('BASEROW_TOKEN') || '';
+    return String(tokenGuardado).trim();
+}
+
+function guardarTokenBaserow(token) {
+    const valor = String(token || '').trim();
+    if (!valor) return '';
+    window.BASEROW_TOKEN = valor;
+    localStorage.setItem('BASEROW_TOKEN', valor);
+    return valor;
+}
+
+let TOKEN = obtenerTokenBaserow();
 
 // ===== ESTADO GLOBAL =====
 let estado = {
@@ -764,15 +778,25 @@ let syncRequestId = 0;
 
 // ===== FUNCIONES BASE =====
 async function fetchBaserow(tableId) {
+    if (!TOKEN) {
+        throw new Error('TOKEN_NO_CONFIGURADO');
+    }
+
     try {
         const res = await fetch(`${BASEROW_API}${tableId}/?user_field_names=true`, {
             headers: { 'Authorization': `Token ${TOKEN}` }
         });
+        if (res.status === 401) {
+            TOKEN = '';
+            window.BASEROW_TOKEN = '';
+            localStorage.removeItem('BASEROW_TOKEN');
+            throw new Error('TOKEN_INVALIDO');
+        }
         if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
         return await res.json();
     } catch (error) {
         console.error('Error obteniendo datos de Baserow:', error);
-        return { results: [] };
+        throw error;
     }
 }
 
@@ -934,12 +958,26 @@ function mergePlanSemanal(serverPlan) {
 
 // ===== SINCAR DATOS =====
 async function sincronizarTodo() {
-    const syncId = ++syncRequestId;
+    TOKEN = obtenerTokenBaserow();
+    if (!TOKEN) {
+        const token = window.prompt('Pega tu token de Baserow para cargar la información de la base de datos:');
+        TOKEN = guardarTokenBaserow(token);
+    }
+
     const btn = document.getElementById('btnSync');
+    if (!btn) return;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
     btn.disabled = true;
+
+    if (!TOKEN) {
+        mostrarToast('Falta el token de Baserow. Pégalo en el navegador para cargar tus datos.', 'warning');
+        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
+        btn.disabled = false;
+        return;
+    }
     
     try {
+        const syncId = ++syncRequestId;
         const [recetas, ingredientes, plan, historial, listaCompras] = await Promise.all([
             fetchBaserow(TABLA_RECETAS),
             fetchBaserow(TABLA_INGREDIENTES),
@@ -966,7 +1004,15 @@ async function sincronizarTodo() {
         
     } catch(e) {
         console.error('Error al sincronizar:', e);
-        alert('Error sincronizando datos. Verifica tu conexión.');
+        if (String(e && e.message || '').includes('TOKEN')) {
+            const nuevoToken = window.prompt('Tu token de Baserow no sirve o está vacío. Pégalo de nuevo para cargar tus datos:');
+            TOKEN = guardarTokenBaserow(nuevoToken);
+            if (TOKEN) {
+                sincronizarTodo();
+                return;
+            }
+        }
+        alert('Error sincronizando datos. Verifica tu conexión o tu token de Baserow.');
     }
     
     btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
@@ -1331,42 +1377,171 @@ async function exportarPlanSemanal() {
         textY += wrapped.length * (lineHeight + 4) + (line.includes('•') || line.includes('(') ? spacing : 0);
     });
 
-    const finalHeight = Math.max(500, textY + 80);
+    const finalHeight = Math.max(700, textY + 200);
     canvas.width = width;
     canvas.height = finalHeight;
 
     const bg = ctx.createLinearGradient(0, 0, width, finalHeight);
-    bg.addColorStop(0, '#fff7ed');
-    bg.addColorStop(1, '#fffdf8');
+    bg.addColorStop(0, '#fffaf5');
+    bg.addColorStop(0.5, '#fff1e3');
+    bg.addColorStop(1, '#fef7ef');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, finalHeight);
 
-    ctx.fillStyle = '#f97316';
-    ctx.fillRect(cardX, cardY, cardW, finalHeight - 32);
+    const glowA = ctx.createRadialGradient(width * 0.2, 0, 0, width * 0.2, 0, 420);
+    glowA.addColorStop(0, 'rgba(251,146,60,0.25)');
+    glowA.addColorStop(1, 'rgba(251,146,60,0)');
+    ctx.fillStyle = glowA;
+    ctx.fillRect(0, 0, width, finalHeight);
 
+    const glowB = ctx.createRadialGradient(width * 0.8, finalHeight * 0.75, 0, width * 0.8, finalHeight * 0.75, 420);
+    glowB.addColorStop(0, 'rgba(249,115,22,0.18)');
+    glowB.addColorStop(1, 'rgba(249,115,22,0)');
+    ctx.fillStyle = glowB;
+    ctx.fillRect(0, 0, width, finalHeight);
+
+    const panelX = 36;
+    const panelY = 30;
+    const panelW = width - 72;
+    const panelH = finalHeight - 60;
+    ctx.fillStyle = 'rgba(255,255,255,0.68)';
+    ctx.strokeStyle = 'rgba(249,115,22,0.18)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(panelX + 24, panelY);
+    ctx.lineTo(panelX + panelW - 24, panelY);
+    ctx.quadraticCurveTo(panelX + panelW, panelY, panelX + panelW, panelY + 24);
+    ctx.lineTo(panelX + panelW, panelY + panelH - 24);
+    ctx.quadraticCurveTo(panelX + panelW, panelY + panelH, panelX + panelW - 24, panelY + panelH);
+    ctx.lineTo(panelX + 24, panelY + panelH);
+    ctx.quadraticCurveTo(panelX, panelY + panelH, panelX, panelY + panelH - 24);
+    ctx.lineTo(panelX, panelY + 24);
+    ctx.quadraticCurveTo(panelX, panelY, panelX + 24, panelY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    const headerX = 58;
+    const headerY = 58;
+    const headerW = width - 116;
+    const headerH = 120;
     ctx.fillStyle = '#fff';
-    ctx.fillRect(cardX + 8, cardY + 8, cardW - 16, finalHeight - 48);
+    ctx.beginPath();
+    ctx.moveTo(headerX + 20, headerY);
+    ctx.lineTo(headerX + headerW - 20, headerY);
+    ctx.quadraticCurveTo(headerX + headerW, headerY, headerX + headerW, headerY + 20);
+    ctx.lineTo(headerX + headerW, headerY + headerH - 20);
+    ctx.quadraticCurveTo(headerX + headerW, headerY + headerH, headerX + headerW - 20, headerY + headerH);
+    ctx.lineTo(headerX + 20, headerY + headerH);
+    ctx.quadraticCurveTo(headerX, headerY + headerH, headerX, headerY + headerH - 20);
+    ctx.lineTo(headerX, headerY + 20);
+    ctx.quadraticCurveTo(headerX, headerY, headerX + 20, headerY);
+    ctx.closePath();
+    ctx.fill();
 
-    ctx.fillStyle = '#ea580c';
-    ctx.font = 'bold 36px sans-serif';
-    ctx.textBaseline = 'top';
-    ctx.fillText('🍽️ Plan semanal', left + 18, 58);
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.arc(headerX + 60, headerY + 60, 28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 28px sans-serif';
+    ctx.fillText('🍽', headerX + 43, headerY + 70);
 
-    ctx.fillStyle = '#7c2d12';
-    ctx.font = '18px sans-serif';
-    ctx.fillText('Comidas programadas para la semana', left + 18, 96);
+    ctx.fillStyle = '#111827';
+    ctx.font = '900 34px sans-serif';
+    ctx.fillText('Cookly', headerX + 110, headerY + 62);
 
-    let y = 150;
-    layout.forEach(({ font, wrapped, line }) => {
-        ctx.font = font;
-        ctx.fillStyle = line.includes('(') && !line.includes('•') ? '#1f2937' : '#374151';
-        wrapped.forEach(part => {
-            ctx.fillText(part, left + 18, y);
-            y += lineHeight + 4;
+    ctx.fillStyle = '#f97316';
+    ctx.font = '700 18px sans-serif';
+    ctx.fillText('Plan semanal', headerX + 110, headerY + 90);
+
+    const badgeX = width - 208;
+    const badgeY = headerY + 26;
+    ctx.fillStyle = '#fff7ed';
+    ctx.beginPath();
+    ctx.moveTo(badgeX + 18, badgeY);
+    ctx.lineTo(badgeX + 110, badgeY);
+    ctx.quadraticCurveTo(badgeX + 130, badgeY, badgeX + 130, badgeY + 18);
+    ctx.lineTo(badgeX + 130, badgeY + 42);
+    ctx.quadraticCurveTo(badgeX + 130, badgeY + 60, badgeX + 110, badgeY + 60);
+    ctx.lineTo(badgeX + 18, badgeY + 60);
+    ctx.quadraticCurveTo(badgeX, badgeY + 60, badgeX, badgeY + 42);
+    ctx.lineTo(badgeX, badgeY + 18);
+    ctx.quadraticCurveTo(badgeX, badgeY, badgeX + 18, badgeY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#f97316';
+    ctx.font = '700 16px sans-serif';
+    ctx.fillText('Todo listo', badgeX + 18, badgeY + 38);
+
+    let y = 210;
+    const dayCardPadding = 22;
+
+    bloques.forEach(({ dia, fecha, comidas }) => {
+        const blockH = Math.max(110, 62 + comidas.length * 52);
+        const blockX = 72;
+        const blockW = width - 144;
+
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = 'rgba(249,115,22,0.18)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(blockX + 18, y);
+        ctx.lineTo(blockX + blockW - 18, y);
+        ctx.quadraticCurveTo(blockX + blockW, y, blockX + blockW, y + 18);
+        ctx.lineTo(blockX + blockW, y + blockH - 18);
+        ctx.quadraticCurveTo(blockX + blockW, y + blockH, blockX + blockW - 18, y + blockH);
+        ctx.lineTo(blockX + 18, y + blockH);
+        ctx.quadraticCurveTo(blockX, y + blockH, blockX, y + blockH - 18);
+        ctx.lineTo(blockX, y + 18);
+        ctx.quadraticCurveTo(blockX, y, blockX + 18, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(blockX + 16, y + 18, 6, blockH - 36);
+
+        ctx.fillStyle = '#111827';
+        ctx.font = '700 28px sans-serif';
+        ctx.fillText(dia, blockX + 36, y + 42);
+
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '500 18px sans-serif';
+        ctx.fillText(fecha, blockX + blockW - 150, y + 42);
+
+        let rowY = y + 72;
+        comidas.forEach(comida => {
+            const tipo = obtenerNombreTipoComida(comida.tipo);
+            const nombre = comida.nombre.length > 42 ? `${comida.nombre.slice(0, 39)}…` : comida.nombre;
+
+            ctx.fillStyle = '#fff7ed';
+            ctx.beginPath();
+            ctx.moveTo(blockX + 36, rowY);
+            ctx.lineTo(blockX + 150, rowY);
+            ctx.quadraticCurveTo(blockX + 160, rowY, blockX + 160, rowY + 12);
+            ctx.lineTo(blockX + 160, rowY + 32);
+            ctx.quadraticCurveTo(blockX + 160, rowY + 44, blockX + 150, rowY + 44);
+            ctx.lineTo(blockX + 36, rowY + 44);
+            ctx.quadraticCurveTo(blockX + 26, rowY + 44, blockX + 26, rowY + 32);
+            ctx.lineTo(blockX + 26, rowY + 12);
+            ctx.quadraticCurveTo(blockX + 26, rowY, blockX + 36, rowY);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#f97316';
+            ctx.font = '700 16px sans-serif';
+            ctx.fillText(tipo, blockX + 42, rowY + 29);
+
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '600 20px sans-serif';
+            ctx.fillText(nombre, blockX + 180, rowY + 29);
+
+            rowY += 52;
         });
-        if (line.includes('•') || line.includes('(')) {
-            y += spacing;
-        }
+
+        y += blockH + 18;
     });
 
     try {
