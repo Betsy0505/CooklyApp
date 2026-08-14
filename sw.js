@@ -1,28 +1,29 @@
 // sw.js - Service Worker para Cookly
 
-const CACHE_NAME = 'cookly-v1.0.0';
+const CACHE_NAME = 'cookly-v1.0.2';
 const OFFLINE_URL = 'index.html';
 
-// Recursos a cachear (todos los archivos de tu app)
+// Recursos locales a precachear (los externos se cachean solos al usarse, vía el fetch handler)
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json',
-  'https://cdn.tailwindcss.com',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2'
+  '/manifest.json'
 ];
 
-// Instalación - guarda los archivos en caché
+// Instalación - guarda los archivos en caché sin dejar que un solo error tumbe todo
 self.addEventListener('install', event => {
   console.log('[Service Worker] Instalando...');
-  
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[Service Worker] Cacheando archivos');
-        return cache.addAll(urlsToCache);
+        // addAll falla completo si un solo recurso falla; usamos add() individual + catch
+        return Promise.allSettled(
+          urlsToCache.map(url => cache.add(url).catch(err => {
+            console.warn('[Service Worker] No se pudo cachear', url, err);
+          }))
+        );
       })
       .then(() => {
         console.log('[Service Worker] Instalación completada');
