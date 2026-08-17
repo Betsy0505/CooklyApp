@@ -6,7 +6,8 @@
     
     <!-- ===== CONFIGURACIÓN PWA ===== -->
     <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="icon-192.png" />
+    <link rel="icon" href="icon-192.png?v=4" type="image/png" />
+    <link rel="apple-touch-icon" href="icon-192.png?v=4" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Cookly" />
@@ -14,11 +15,11 @@
     <meta name="theme-color" content="#f97316" />
     
     <!-- ===== SEO Y DESCRIPCIÓN ===== -->
-    <title>🍳 Cookly - Asistente Inteligente de Cocina</title>
+    <title>Cookly - Asistente Inteligente de Cocina</title>
     <meta name="description" content="Cookly te ayuda a encontrar recetas, planificar comidas y comprar de forma inteligente. ¡Cocina con lo que tienes!" />
     
     <!-- ===== OPEN GRAPH ===== -->
-    <meta property="og:title" content="🍳 Cookly - Asistente Inteligente de Cocina" />
+    <meta property="og:title" content="Cookly - Asistente Inteligente de Cocina" />
     <meta property="og:description" content="Encuentra recetas, planifica comidas y cocina con lo que tienes en casa." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://cookly.app" />
@@ -39,9 +40,10 @@
         }
         
         #app {
-            max-width: 480px;
+            width: min(100%, 1100px);
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 16px;
+            padding: clamp(12px, 2vw, 28px);
             background: #f8fafc;
             min-height: 100vh;
             padding-bottom: 80px;
@@ -86,6 +88,78 @@
         .btn-secondary:hover {
             background: #d1d5db;
         }
+
+        .ia-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .ia-header-badge,
+        .ia-section-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 138, 61, 0.18), rgba(249, 115, 22, 0.28));
+            color: #f97316;
+            box-shadow: 0 8px 18px rgba(249, 115, 22, 0.16);
+            border: 1px solid rgba(249, 115, 22, 0.12);
+        }
+
+        .ia-section-card {
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 20px;
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+            padding: 14px 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .ia-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .ia-metric-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 237, 213, 0.9), rgba(254, 215, 170, 0.85));
+            color: #9a4b00;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            min-width: 70px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+
+        .ia-chart-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            min-height: 140px;
+            padding: 10px 6px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.54), rgba(148,163,184,0.08));
+            border: 1px solid rgba(255,255,255,0.45);
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
         
         /* Pestañas */
         .tab-active {
@@ -95,6 +169,95 @@
         .tab-inactive {
             background: #e5e7eb;
             color: #374151;
+        }
+
+        .filtro-categoria {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 46px;
+            padding: 0.75rem 1rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #374151;
+            background: rgba(255, 255, 255, 0.36);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.75);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .filtro-categoria:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .filtro-categoria span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .filtro-categoria i {
+            width: 1.7rem;
+            height: 1.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.55);
+            color: inherit;
+            font-size: 0.8rem;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .filtro-categoria[data-cat="todas"] {
+            background: rgba(255, 166, 91, 0.25);
+            color: #9a4b00;
+        }
+
+        .filtro-categoria[data-cat="pescado"] {
+            background: rgba(96, 165, 250, 0.22);
+            color: #1d4ed8;
+        }
+
+        .filtro-categoria[data-cat="carne"] {
+            background: rgba(248, 113, 113, 0.2);
+            color: #b91c1c;
+        }
+
+        .filtro-categoria[data-cat="vegetariano"] {
+            background: rgba(74, 222, 128, 0.2);
+            color: #166534;
+        }
+
+        .filtro-categoria[data-cat="pasta"] {
+            background: rgba(250, 204, 21, 0.2);
+            color: #92400e;
+        }
+
+        .filtro-categoria[data-cat="pollo"] {
+            background: rgba(251, 146, 60, 0.2);
+            color: #9a4b00;
+        }
+
+        .filtro-categoria[data-cat="sopa"] {
+            background: rgba(250, 204, 21, 0.18);
+            color: #854d0e;
+        }
+
+        .filtro-categoria[data-cat="otro"] {
+            background: rgba(148, 163, 184, 0.18);
+            color: #334155;
+        }
+
+        .filtro-categoria.active {
+            box-shadow: 0 14px 28px rgba(249, 115, 22, 0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+            border-color: rgba(249, 115, 22, 0.42);
+            transform: translateY(-2px) scale(1.01);
         }
         
         /* Tarjetas */
@@ -168,6 +331,94 @@
             background: #f97316;
             border-radius: 10px;
         }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            width: min(92vw, 420px);
+        }
+
+        .toast {
+            pointer-events: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: rgba(255,255,255,0.98);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #1f2937;
+            border-left: 6px solid #22c55e;
+            animation: toastIn 0.22s ease;
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+
+        .toast.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .toast-icon {
+            width: 22px;
+            min-width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .toast.error .toast-icon {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .toast.warning .toast-icon {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .toast-body {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        .toast-close {
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 1.2rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
         
         /* Ingredientes seleccionados */
         .chip-ingrediente {
@@ -187,6 +438,53 @@
         }
         .chip-ingrediente .eliminar:hover {
             color: #991b1b;
+        }
+
+        .ingrediente-search-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .ingrediente-dropdown {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 8px);
+            background: white;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+            z-index: 40;
+        }
+
+        .ingrediente-dropdown.visible {
+            display: block;
+        }
+
+        .sugerencia-ingrediente {
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            border: none;
+            background: white;
+            color: #374151;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .sugerencia-ingrediente:last-child {
+            border-bottom: none;
+        }
+
+        .sugerencia-ingrediente:hover,
+        .sugerencia-ingrediente:focus {
+            background: #fff7ed;
+            color: #c2410c;
+            outline: none;
         }
         
         /* Botón flotante */
@@ -222,6 +520,28 @@
         .estado-offline { color: #ef4444; }
         
         /* Responsive */
+        @media (min-width: 900px) {
+            #app {
+                padding-left: 28px;
+                padding-right: 28px;
+            }
+
+            .tab-btn {
+                font-size: 0.95rem;
+                padding-top: 0.8rem;
+                padding-bottom: 0.8rem;
+            }
+
+            .tab-content {
+                max-width: 980px;
+                margin: 0 auto;
+            }
+
+            #recetasContainer {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
         @media (max-width: 480px) {
             #app { padding: 12px; }
             .modal-contenido { margin: 5% 10px; padding: 16px; }
@@ -230,15 +550,15 @@
 </head>
 <body>
 
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <div id="app">
     <!-- ===== ENCABEZADO ===== -->
     <header class="flex justify-between items-center mb-4">
         <div class="flex items-center gap-2">
-            <span class="text-2xl">🍳</span>
-            <h1 class="text-2xl font-bold" style="color: #f97316;">Cookly</h1>
+            <img src="cookly-logo-header.png?v=3" alt="Cookly" class="h-16 w-auto object-contain" />
         </div>
         <div class="flex items-center gap-2">
-            <span id="estadoConexion" class="text-xs estado-online">🟢 En línea</span>
+            <span id="estadoConexion" class="text-xs estado-online inline-flex items-center gap-1.5"><i class="fas fa-circle text-[8px]"></i> En línea</span>
             <button id="btnSync" class="btn-primary text-sm px-3 py-1 rounded-full">
                 <i class="fas fa-sync-alt"></i> Sincronizar
             </button>
@@ -246,14 +566,19 @@
     </header>
 
     <!-- ===== SUBTÍTULO ===== -->
-    <p class="text-sm text-gray-500 mb-4 text-center">Cocina inteligente, come delicioso ✨</p>
+    <p class="text-sm text-gray-500 mb-4 text-center">
+        <span class="inline-flex items-center gap-2 justify-center">
+            <i class="fas fa-utensils text-orange-500"></i>
+            <span>Cocina inteligente, come delicioso</span>
+        </span>
+    </p>
 
     <!-- ===== PESTAÑAS ===== -->
     <div class="flex gap-1 bg-gray-200 p-1 rounded-xl mb-4">
-        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-active" data-tab="plan">📅 Plan</button>
-        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="recetas">📖 Recetas</button>
-        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="despensa">🛒 Despensa</button>
-        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="innovaciones">✨ IA</button>
+        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-active" data-tab="plan"><i class="fas fa-calendar-alt"></i> Plan</button>
+        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="recetas"><i class="fas fa-book"></i> Recetas</button>
+        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="despensa"><i class="fas fa-shopping-cart"></i> Despensa</button>
+        <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium tab-inactive" data-tab="innovaciones"><i class="fas fa-brain"></i> IA</button>
     </div>
 
     <!-- ===== PESTAÑA: PLAN SEMANAL ===== -->
@@ -261,7 +586,7 @@
         <div class="flex justify-between items-center mb-3">
             <h2 class="text-lg font-semibold">Semana del <span id="semanaFecha" class="text-cookly">Lunes</span></h2>
             <button id="btnAgregarComida" class="btn-primary text-sm">
-                <i class="fas fa-plus"></i> Agregar
+                <i class="fas fa-file-export"></i> Exportar Comida Semanal
             </button>
         </div>
         <div id="planSemanalContainer"></div>
@@ -270,32 +595,26 @@
     <!-- ===== PESTAÑA: RECETAS ===== -->
     <div id="tab-recetas" class="tab-content hidden">
         <div class="flex gap-2 mb-3 overflow-x-auto pb-2">
-            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="todas">Todas</button>
-            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="pescado">🐟 Pescado</button>
-            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="carne">🥩 Carne</button>
-            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="vegetariano">🥗 Vegetariano</button>
-            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="pasta">🍝 Pasta</button>
-            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="pollo">🍗 Pollo</button>
-            <button class="filtro-categoria bg-orange-100 px-3 py-1 rounded-full text-sm" data-cat="sopa">🥣 Sopa</button>
+            <button class="filtro-categoria active" data-cat="todas"><span><i class="fas fa-filter"></i> Todas</span></button>
+            <button class="filtro-categoria" data-cat="pescado"><span><i class="fas fa-fish"></i> Pescado</span></button>
+            <button class="filtro-categoria" data-cat="carne"><span><i class="fas fa-drumstick-bite"></i> Carne</span></button>
+            <button class="filtro-categoria" data-cat="vegetariano"><span><i class="fas fa-leaf"></i> Vegetariano</span></button>
+            <button class="filtro-categoria" data-cat="pasta"><span><i class="fas fa-bowl-food"></i> Pasta</span></button>
+            <button class="filtro-categoria" data-cat="pollo"><span><i class="fas fa-drumstick-bite"></i> Pollo</span></button>
+            <button class="filtro-categoria" data-cat="sopa"><span><i class="fas fa-mug-hot"></i> Sopa</span></button>
+            <button class="filtro-categoria" data-cat="otro"><span><i class="fas fa-tag"></i> Otro</span></button>
         </div>
-        <div id="recetasContainer" class="grid grid-cols-1 gap-3"></div>
-    </div>
 
-    <!-- ===== PESTAÑA: DESPENSA ===== -->
-    <div id="tab-despensa" class="tab-content hidden">
-        <!-- Buscador por ingredientes -->
         <div class="bg-white rounded-xl p-4 shadow-sm mb-4">
-            <h3 class="font-semibold text-lg mb-2">🔍 Buscar por ingredientes</h3>
+            <h3 class="font-semibold text-lg mb-2 flex items-center gap-2"><i class="fas fa-magnifying-glass text-orange-500"></i> Buscar por ingredientes</h3>
             <div class="flex flex-wrap gap-2 mb-3" id="ingredientesSeleccionados"></div>
-            <div class="flex gap-2">
-                <input type="text" id="inputIngrediente" placeholder="Escribe un ingrediente..." 
-                       class="flex-1 p-2 border rounded-lg text-sm" list="listaIngredientes" />
-                <datalist id="listaIngredientes"></datalist>
+            <div class="flex gap-2 items-start">
+                <div class="ingrediente-search-wrap flex-1">
+                    <input type="text" id="inputIngrediente" placeholder="Escribe un ingrediente..." class="w-full p-2 border rounded-lg text-sm" autocomplete="off" />
+                    <div id="listaIngredientesDropdown" class="ingrediente-dropdown" aria-live="polite"></div>
+                </div>
                 <button id="btnAgregarIngrediente" class="btn-primary text-sm px-4">
-                    <i class="fas fa-plus"></i> Agregar
-                </button>
-                <button id="btnBuscarRecetas" class="btn-primary text-sm px-4">
-                    <i class="fas fa-search"></i> Buscar
+                    <i class="fas fa-search"></i> Buscar Receta
                 </button>
             </div>
             <button id="btnLimpiarIngredientes" class="text-xs text-red-500 mt-2 hover:text-red-700">
@@ -303,12 +622,24 @@
             </button>
         </div>
 
-        <!-- Resultados de búsqueda -->
         <div id="resultadosPorIngredientes" class="space-y-3 mb-4"></div>
+        <div id="recetasContainer" class="grid grid-cols-1 gap-3"></div>
+    </div>
 
+    <!-- ===== PESTAÑA: DESPENSA ===== -->
+    <div id="tab-despensa" class="tab-content hidden">
         <!-- Lista de compras -->
         <div>
-            <h3 class="font-semibold text-lg mb-2">🛒 Lista de Compras</h3>
+            <div class="flex items-center justify-between gap-2 mb-2">
+                <h3 class="font-semibold text-lg">Lista de Compras</h3>
+                <button id="btnAgregarIngredientesPlan" class="btn-secondary text-xs px-2 py-1 rounded-lg">
+                    <i class="fas fa-plus"></i> Plan
+                </button>
+            </div>
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="inputListaCompras" placeholder="Agregar ingrediente..." class="flex-1 p-2 border rounded-lg text-sm" />
+                <button id="btnAgregarListaCompras" class="btn-primary px-3 rounded-lg text-xl leading-none" aria-label="Agregar a la lista de compras">+</button>
+            </div>
             <input type="text" id="buscarIngrediente" placeholder="Buscar ingrediente..." class="w-full p-2 border rounded-lg mb-3 text-sm" />
             <div id="despensaContainer" class="space-y-2"></div>
             <button id="btnCompartirLista" class="w-full btn-primary py-2 rounded-lg mt-3">
@@ -319,26 +650,35 @@
 
     <!-- ===== PESTAÑA: IA E INNOVACIONES ===== -->
     <div id="tab-innovaciones" class="tab-content hidden">
+<<<<<<< HEAD
         <h2 class="text-lg font-semibold mb-3">Recomendaciones Inteligentes</h2>
+=======
+        <div class="ia-header">
+            <span>Recomendaciones Inteligentes</span>
+        </div>
+>>>>>>> 78894e79b8903968077ba7c6e82787e8ef194445
         <div id="recomendacionesContainer"></div>
-        <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
-            <h3 class="font-semibold">📊 Radar de Consumo</h3>
-            <div id="radarConsumo" class="h-40 bg-white rounded-lg mt-2 flex items-center justify-center">
+        <div class="mt-4 ia-section-card">
+            <h3 class="ia-section-title"><span class="ia-section-badge"><i class="fas fa-chart-bar"></i></span> Radar de Consumo</h3>
+            <div id="radarConsumo" class="mt-2 flex items-center justify-center min-h-[160px] bg-white/60 rounded-xl border border-orange-100">
                 <span class="text-gray-400">Cargando datos...</span>
             </div>
         </div>
     </div>
 
     <!-- ===== BOTÓN FLOTANTE: ESCANEAR RECETA ===== -->
-    <button id="btnEscanearReceta" class="btn-flotante">
-        <i class="fas fa-camera"></i>
+    <button id="btnEscanearReceta" class="btn-flotante" aria-label="Agregar receta">
+        <i class="fas fa-plus"></i>
     </button>
 
     <!-- ===== VENTANA MODAL: ESCANEAR RECETA ===== -->
     <div id="modalEscanear" class="modal">
         <div class="modal-contenido">
             <div class="flex justify-between items-start mb-3">
-                <h3 class="text-xl font-bold">📸 Pegar texto de receta</h3>
+                <h3 class="text-xl font-bold flex items-center gap-2">
+                    <span class="ia-section-badge"><i class="fas fa-file-alt"></i></span>
+                    <span>Pegar texto de receta</span>
+                </h3>
                 <button id="btnCerrarModal" class="text-gray-500 text-2xl hover:text-gray-700">&times;</button>
             </div>
             <textarea id="textoReceta" rows="6" class="w-full p-2 border rounded-lg" placeholder="Pega aquí el texto de la receta (nombre, ingredientes, instrucciones)..."></textarea>
@@ -407,6 +747,55 @@
 <!-- ===== JAVASCRIPT COMPLETO ===== -->
 <!-- ============================================================ -->
 <script>
+function mostrarToast(mensaje, tipo = 'success') {
+const container = document.getElementById('toastContainer');
+if (!container) return;
+
+const toast = document.createElement('div');
+toast.className = `toast ${tipo}`;
+
+const icon = document.createElement('i');
+icon.className = tipo === 'error'
+    ? 'toast-icon fas fa-circle-xmark'
+    : tipo === 'warning'
+        ? 'toast-icon fas fa-triangle-exclamation'
+        : 'toast-icon fas fa-circle-check';
+
+const body = document.createElement('div');
+body.className = 'toast-body';
+body.textContent = mensaje;
+
+const close = document.createElement('button');
+close.type = 'button';
+close.className = 'toast-close';
+close.setAttribute('aria-label', 'Cerrar notificación');
+close.textContent = '×';
+close.onclick = () => toast.remove();
+
+toast.appendChild(icon);
+toast.appendChild(body);
+toast.appendChild(close);
+
+container.appendChild(toast);
+
+setTimeout(() => {
+    toast.remove();
+}, 2800);
+}
+
+function limpiarTextoAlerta(texto) {
+    return String(texto || '').replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, '').replace(/\s{2,}/g, ' ').trim();
+}
+
+window.alert = function (mensaje) {
+const texto = limpiarTextoAlerta(mensaje);
+const tipo = /error|no se pudo|fallo|inténtalo|ocurrió|no hay|no se encontraron/i.test(texto)
+    ? 'error'
+    : /advertencia|aviso|atención/i.test(texto)
+        ? 'warning'
+        : 'success';
+mostrarToast(texto, tipo);
+};
 // ===== CONFIGURACIÓN BASEROW =====
 // const BASEROW_API = 'https://api.baserow.io/api/database/rows/table/';
 const BASEROW_API = 'https://api.baserow.io/api/database/rows/table/';
@@ -414,7 +803,26 @@ const TABLA_RECETAS = '1119570'; // Reemplaza con tu ID
 const TABLA_INGREDIENTES = '1119597';
 const TABLA_PLAN = '1119572';
 const TABLA_HISTORIAL = '1119598';
+<<<<<<< HEAD
 const TOKEN = ''; 
+=======
+const TABLA_LISTA_COMPRAS = '1134840';
+
+function obtenerTokenBaserow() {
+    const tokenGuardado = window.BASEROW_TOKEN || localStorage.getItem('BASEROW_TOKEN') || '';
+    return String(tokenGuardado).trim();
+}
+
+function guardarTokenBaserow(token) {
+    const valor = String(token || '').trim();
+    if (!valor) return '';
+    window.BASEROW_TOKEN = valor;
+    localStorage.setItem('BASEROW_TOKEN', valor);
+    return valor;
+}
+
+let TOKEN = obtenerTokenBaserow();
+>>>>>>> 78894e79b8903968077ba7c6e82787e8ef194445
 
 // ===== ESTADO GLOBAL =====
 let estado = {
@@ -422,22 +830,34 @@ let estado = {
     ingredientes: [],
     planSemanal: [],
     historial: [],
+    listaCompras: [],
     categoriaActiva: 'todas',
 };
 
 let ingredientesDisponibles = [];
+let syncRequestId = 0;
 
 // ===== FUNCIONES BASE =====
 async function fetchBaserow(tableId) {
+    if (!TOKEN) {
+        throw new Error('TOKEN_NO_CONFIGURADO');
+    }
+
     try {
         const res = await fetch(`${BASEROW_API}${tableId}/?user_field_names=true`, {
             headers: { 'Authorization': `Token ${TOKEN}` }
         });
+        if (res.status === 401) {
+            TOKEN = '';
+            window.BASEROW_TOKEN = '';
+            localStorage.removeItem('BASEROW_TOKEN');
+            throw new Error('TOKEN_INVALIDO');
+        }
         if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
         return await res.json();
     } catch (error) {
         console.error('Error obteniendo datos de Baserow:', error);
-        return { results: [] };
+        throw error;
     }
 }
 
@@ -462,6 +882,7 @@ async function postBaserow(tableId, data) {
     }
 }
 
+<<<<<<< HEAD
 async function patchBaserow(tableId, rowId, data) {
     try {
         const res = await fetch(`${BASEROW_API}${tableId}/${rowId}/?user_field_names=true`, {
@@ -497,33 +918,203 @@ async function deleteBaserow(tableId, rowId) {
         console.error('Error eliminando en Baserow:', error);
         throw error;
     }
+=======
+function normalizarListaComprasItem(item) {
+    if (!item || typeof item !== 'object') return null;
+    return {
+        ...item,
+        id: item.id,
+        Nombre: item.Nombre ?? item.nombre ?? '',
+        Comprado: Boolean(item.Comprado ?? item.comprado ?? false),
+        Active: item.Active ?? item.active ?? true,
+        FechaCreacion: item.FechaCreacion || item.fechaCreacion || new Date().toISOString().split('T')[0]
+    };
+}
+
+async function cargarListaCompras() {
+    const res = await fetchBaserow(TABLA_LISTA_COMPRAS);
+    const items = (res.results || []).filter(item => item.Active !== false).map(normalizarListaComprasItem).filter(Boolean);
+    estado.listaCompras = items;
+    return items;
+}
+
+async function agregarListaCompras(nombre) {
+    const valor = String(nombre || '').trim();
+    if (!valor) return null;
+
+    const payload = {
+        Nombre: valor,
+        Comprado: false,
+        Active: true,
+        FechaCreacion: new Date().toISOString().split('T')[0]
+    };
+
+    const respuesta = await postBaserow(TABLA_LISTA_COMPRAS, payload);
+    const item = normalizarListaComprasItem(respuesta);
+    if (item) {
+        estado.listaCompras = [item, ...estado.listaCompras];
+    }
+    return item;
+}
+
+async function eliminarListaCompras(id) {
+    const rowId = Number(id);
+    if (!rowId) return;
+
+    const respuesta = await fetch(`${BASEROW_API}${TABLA_LISTA_COMPRAS}/${rowId}/?user_field_names=true`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Token ${TOKEN}` }
+    });
+
+    if (!respuesta.ok && respuesta.status !== 404) {
+        throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    estado.listaCompras = estado.listaCompras.filter(item => Number(item.id) !== rowId);
+}
+
+async function actualizarListaCompras(id, cambios) {
+    const rowId = Number(id);
+    if (!rowId) return;
+
+    await fetch(`${BASEROW_API}${TABLA_LISTA_COMPRAS}/${rowId}/?user_field_names=true`, {
+        method: 'PATCH',
+        headers: {
+            'Authorization': `Token ${TOKEN}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(cambios)
+    });
+
+    estado.listaCompras = estado.listaCompras.map(item =>
+        Number(item.id) === rowId ? { ...item, ...cambios } : item
+    );
+}
+
+function tieneIdRealBaserow(valor) {
+    if (valor === undefined || valor === null || valor === '') return false;
+    const numero = Number(valor);
+    return Number.isFinite(numero) && numero > 0 && numero < 1000000000000;
+}
+
+function normalizarRecetaId(valor) {
+    if (Array.isArray(valor)) {
+        if (valor.length === 0) return null;
+        const primero = valor[0];
+        if (primero && typeof primero === 'object') {
+            return Number(primero.id ?? primero.value ?? primero);
+        }
+        return Number(primero);
+    }
+
+    if (valor && typeof valor === 'object') {
+        return Number(valor.id ?? valor.value ?? valor);
+    }
+
+    if (valor === null || valor === undefined || valor === '') return null;
+    return Number(valor);
+}
+
+function normalizarPlanSemanalItem(item) {
+    if (!item || typeof item !== 'object') return item;
+    return {
+        ...item,
+        Fecha: item.Fecha || item.fecha || '',
+        Comida: normalizarTipoComida(item.Comida || item.comida || ''),
+        Receta: normalizarRecetaId(item.Receta),
+        '¿Completado?': item['¿Completado?'] ?? item.completado ?? false
+    };
+}
+
+function mergePlanSemanal(serverPlan) {
+    const serverItems = Array.isArray(serverPlan) ? serverPlan.map(normalizarPlanSemanalItem) : [];
+    const merged = [...serverItems];
+
+    estado.planSemanal.forEach(localItem => {
+        const key = `${localItem.Fecha || ''}|${normalizarTipoComida(localItem.Comida)}`;
+        const index = merged.findIndex(serverItem => {
+            const serverKey = `${serverItem.Fecha || ''}|${normalizarTipoComida(serverItem.Comida)}`;
+            return serverKey === key;
+        });
+
+        if (index >= 0) {
+            const itemFinal = {
+                ...merged[index],
+                ...normalizarPlanSemanalItem(localItem),
+                Fecha: localItem.Fecha || merged[index].Fecha,
+                Comida: normalizarTipoComida(localItem.Comida || merged[index].Comida),
+                Receta: normalizarRecetaId(localItem.Receta ?? merged[index].Receta)
+            };
+            if (!tieneIdRealBaserow(localItem.id)) {
+                itemFinal.id = merged[index].id ?? localItem.id;
+            }
+            merged[index] = itemFinal;
+        } else {
+            merged.push(normalizarPlanSemanalItem(localItem));
+        }
+    });
+
+    return merged;
+>>>>>>> 78894e79b8903968077ba7c6e82787e8ef194445
 }
 
 // ===== SINCAR DATOS =====
 async function sincronizarTodo() {
+    TOKEN = obtenerTokenBaserow();
+    if (!TOKEN) {
+        const token = window.prompt('Pega tu token de Baserow para cargar la información de la base de datos:');
+        TOKEN = guardarTokenBaserow(token);
+    }
+
     const btn = document.getElementById('btnSync');
+    if (!btn) return;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
     btn.disabled = true;
+
+    if (!TOKEN) {
+        mostrarToast('Falta el token de Baserow. Pégalo en el navegador para cargar tus datos.', 'warning');
+        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
+        btn.disabled = false;
+        return;
+    }
     
     try {
-        const [recetas, ingredientes, plan, historial] = await Promise.all([
+        const syncId = ++syncRequestId;
+        const [recetas, ingredientes, plan, historial, listaCompras] = await Promise.all([
             fetchBaserow(TABLA_RECETAS),
             fetchBaserow(TABLA_INGREDIENTES),
             fetchBaserow(TABLA_PLAN),
-            fetchBaserow(TABLA_HISTORIAL)
+            fetchBaserow(TABLA_HISTORIAL),
+            fetchBaserow(TABLA_LISTA_COMPRAS)
         ]);
+
+        if (syncId !== syncRequestId) return;
         
         estado.recetas = recetas.results || [];
         estado.ingredientes = ingredientes.results || [];
-        estado.planSemanal = plan.results || [];
         estado.historial = historial.results || [];
+        estado.listaCompras = (listaCompras.results || [])
+            .filter(item => item.Active !== false)
+            .map(normalizarListaComprasItem)
+            .filter(Boolean);
+
+        const serverPlan = (plan.results || []).map(normalizarPlanSemanalItem);
+        estado.planSemanal = mergePlanSemanal(serverPlan);
         
         renderizarTodo();
         actualizarListaIngredientes();
         
     } catch(e) {
         console.error('Error al sincronizar:', e);
-        alert('⚠️ Error sincronizando datos. Verifica tu conexión.');
+        if (String(e && e.message || '').includes('TOKEN')) {
+            const nuevoToken = window.prompt('Tu token de Baserow no sirve o está vacío. Pégalo de nuevo para cargar tus datos:');
+            TOKEN = guardarTokenBaserow(nuevoToken);
+            if (TOKEN) {
+                sincronizarTodo();
+                return;
+            }
+        }
+        alert('Error sincronizando datos. Verifica tu conexión o tu token de Baserow.');
     }
     
     btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
@@ -536,6 +1127,120 @@ function renderizarTodo() {
     renderizarRecetas();
     renderizarDespensa();
     renderizarRecomendaciones();
+}
+
+function normalizarTipoComida(value) {
+    const texto = String(value ?? '').trim().toLowerCase();
+    if (!texto) return '';
+    return texto === 'almuerzo' ? 'comida' : texto;
+}
+
+function obtenerNombreTipoComida(tipo) {
+    const valor = normalizarTipoComida(tipo);
+    if (valor === 'comida') return 'Comida';
+    return valor ? valor.charAt(0).toUpperCase() + valor.slice(1) : 'Comida';
+}
+
+function obtenerTipoComidaBaserow(tipo) {
+    const valor = normalizarTipoComida(tipo);
+    const mapa = {
+        desayuno: 'Desayuno',
+        comida: 'Comida',
+        cena: 'Cena'
+    };
+    return mapa[valor] || obtenerNombreTipoComida(tipo);
+}
+
+function obtenerTituloReceta(receta, tipoFallback = '') {
+    if (!receta) return '';
+    const nombre = receta.Nombre || '';
+    const tipo = String(receta.Tipo ?? receta.tipo ?? tipoFallback ?? '').trim();
+    if (!tipo) return nombre;
+    return `${obtenerNombreTipoComida(tipo)}: ${nombre}`;
+}
+
+function actualizarTipoRecetaLocal(recetaId, tipo) {
+    if (!recetaId || !tipo) return;
+    const idNumero = Number(recetaId);
+    const tipoBaserow = obtenerTipoComidaBaserow(tipo);
+    const index = estado.recetas.findIndex(r => Number(r.id) === idNumero);
+    if (index >= 0) {
+        estado.recetas[index] = {
+            ...estado.recetas[index],
+            Tipo: tipoBaserow
+        };
+    }
+}
+
+async function actualizarTipoRecetaEnBaserow(recetaId, tipo) {
+    if (!recetaId || !tipo) return;
+    const tipoBaserow = obtenerTipoComidaBaserow(tipo);
+    try {
+        await fetch(`${BASEROW_API}${TABLA_RECETAS}/${recetaId}/?user_field_names=true`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Token ${TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ Tipo: tipoBaserow })
+        });
+    } catch (error) {
+        console.error('No se pudo actualizar el tipo de la receta:', error);
+    }
+}
+
+async function guardarPlanEnBaserow(fecha, tipo, recetaId) {
+    const payload = {
+        Fecha: fecha,
+        Comida: obtenerTipoComidaBaserow(tipo),
+        Active: true,
+        Receta: [Number(recetaId)],
+        '¿Completado?': false
+    };
+
+    actualizarTipoRecetaLocal(recetaId, tipo);
+    await actualizarTipoRecetaEnBaserow(recetaId, tipo);
+
+    const planActual = estado.planSemanal.find(p =>
+        p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo) && tieneIdRealBaserow(p.id)
+    );
+
+    let respuesta;
+
+    if (planActual && planActual.id) {
+        try {
+            const res = await fetch(`${BASEROW_API}${TABLA_PLAN}/${planActual.id}/?user_field_names=true`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Token ${TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                respuesta = await res.json();
+            } else if (res.status === 404) {
+                respuesta = await postBaserow(TABLA_PLAN, payload);
+            } else {
+                throw new Error(`Error HTTP: ${res.status}`);
+            }
+        } catch (error) {
+            if (error && error.message && error.message.includes('404')) {
+                respuesta = await postBaserow(TABLA_PLAN, payload);
+            } else {
+                throw error;
+            }
+        }
+    } else {
+        respuesta = await postBaserow(TABLA_PLAN, payload);
+    }
+
+    if (respuesta && respuesta.id) {
+        await registrarConsumoReceta(Number(recetaId), 1, fecha);
+    }
+
+    return respuesta;
 }
 
 // ===== PLAN SEMANAL =====
@@ -561,13 +1266,15 @@ function renderizarPlanSemanal() {
                 <span class="text-sm text-gray-500">${fechaStr}</span>
             </div>
             <div class="mt-2 space-y-2">
-                ${['desayuno', 'almuerzo', 'cena'].map(tipo => {
-                    const comida = comidasDelDia.find(c => c.Comida === tipo);
-                    const receta = comida ? estado.recetas.find(r => r.id === comida.Receta) : null;
+                ${['desayuno', 'comida', 'cena'].map(tipo => {
+                    const comida = comidasDelDia.find(c => normalizarTipoComida(c.Comida) === tipo);
+                    const recetaId = comida ? normalizarRecetaId(comida.Receta) : null;
+                    const receta = recetaId !== null && !Number.isNaN(recetaId) ? estado.recetas.find(r => Number(r.id) === recetaId) : null;
+                    const nombreTipo = obtenerNombreTipoComida(tipo);
                     return `<div class="flex justify-between items-center text-sm">
-                        <span class="capitalize w-20 text-gray-600">${tipo}</span>
+                        <span class="w-20 text-gray-600">${nombreTipo}</span>
                         ${receta ? 
-                            `<span class="bg-orange-50 text-orange-800 px-2 py-1 rounded-lg flex-1 ml-2">${receta.Nombre}</span>` :
+                            `<span class="bg-orange-50 text-orange-800 px-2 py-1 rounded-lg flex-1 ml-2">${obtenerTituloReceta(receta, tipo)}</span>` :
                             `<button class="btn-agregar-comida text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded-lg" data-fecha="${fechaStr}" data-comida="${tipo}">+ Agregar</button>`
                         }
                         ${receta ? `<button class="btn-cambiar-comida text-xs text-orange-500 hover:text-orange-700 ml-1" data-receta="${receta.id}" data-fecha="${fechaStr}" data-comida="${tipo}"><i class="fas fa-exchange-alt"></i></button>` : ''}
@@ -586,28 +1293,483 @@ function renderizarPlanSemanal() {
     });
 }
 
+function seleccionarRecetaDesdeModal(recetas, titulo) {
+    return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'block';
+
+        const renderLista = (filtro = '') => {
+            const texto = filtro.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+            const recetasFiltradas = !texto
+                ? recetas
+                : recetas.filter(receta => {
+                    const nombre = String(obtenerTituloReceta(receta) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    const categoria = String(receta.Categoría || '').toLowerCase();
+                    return nombre.includes(texto) || categoria.includes(texto);
+                });
+
+            const lista = modal.querySelector('.selector-recetas-lista');
+            if (!lista) return;
+
+            lista.innerHTML = recetasFiltradas.length === 0
+                ? '<div class="text-sm text-gray-500 text-center py-3">No se encontraron recetas</div>'
+                : recetasFiltradas.map((receta, index) => `
+                    <button type="button" class="btn-selector-receta w-full text-left p-2 rounded-lg bg-gray-50 hover:bg-orange-50 border border-gray-200" data-id="${receta.id}">
+                        <div class="font-medium">${index + 1}. ${obtenerTituloReceta(receta)}</div>
+                        <div class="text-xs text-gray-500">${receta.Categoría || 'Sin categoría'} • ${receta.Tiempo || 30} min</div>
+                    </button>
+                `).join('');
+
+            lista.querySelectorAll('.btn-selector-receta').forEach((btn) => {
+                btn.onclick = () => {
+                    const id = parseInt(btn.dataset.id, 10);
+                    const receta = recetas.find(r => r.id === id);
+                    modal.remove();
+                    resolve(receta || null);
+                };
+            });
+        };
+
+        modal.innerHTML = `
+            <div class="modal-contenido">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-bold">${titulo}</h3>
+                    <button type="button" class="cerrar-selector text-gray-500 text-2xl hover:text-gray-700">&times;</button>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="selectorRecetaSearch" placeholder="Buscar receta..." class="w-full p-2 border border-gray-300 rounded-lg text-sm" autocomplete="off" />
+                </div>
+                <div class="space-y-2 max-h-80 overflow-y-auto selector-recetas-lista"></div>
+                <div class="mt-3">
+                    <button type="button" class="btn-secondary btn-cancelar-selector w-full">Cancelar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const cerrar = () => {
+            modal.remove();
+            resolve(null);
+        };
+
+        modal.querySelector('.cerrar-selector').onclick = cerrar;
+        modal.querySelector('.btn-cancelar-selector').onclick = cerrar;
+        modal.querySelector('#selectorRecetaSearch').addEventListener('input', (event) => {
+            renderLista(event.target.value);
+        });
+        modal.onclick = (e) => { if (e.target === modal) cerrar(); };
+
+        renderLista('');
+    });
+}
+
+function wrapText(ctx, text, maxWidth) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    words.forEach(word => {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        const width = ctx.measureText(testLine).width;
+        if (width > maxWidth && currentLine) {
+            lines.push(currentLine);
+            currentLine = word;
+        } else {
+            currentLine = testLine;
+        }
+    });
+
+    if (currentLine) lines.push(currentLine);
+    return lines;
+}
+
+function obtenerBloquesPlanSemanal() {
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const items = [...estado.planSemanal].filter(item => item && item.Active !== false);
+
+    const porFecha = {};
+    items.forEach(item => {
+        const fecha = String(item.Fecha || '').trim();
+        if (!fecha) return;
+
+        const recetaId = Number(item.Receta ?? item.receta ?? 0);
+        if (!recetaId) return;
+
+        const receta = estado.recetas.find(r => Number(r.id) === recetaId);
+        if (!receta) return;
+
+        const nombre = obtenerTituloReceta(receta);
+        if (!nombre) return;
+
+        const fechaObj = new Date(`${fecha}T12:00:00`);
+        const diaNombre = dias[fechaObj.getDay()] || 'Día';
+
+        if (!porFecha[fecha]) {
+            porFecha[fecha] = { fecha, dia: diaNombre, comidas: [] };
+        }
+
+        const tipo = normalizarTipoComida(item.Comida || receta.Tipo || 'Comida');
+        if (!tipo) return;
+
+        porFecha[fecha].comidas.push({ tipo, nombre });
+    });
+
+    return Object.values(porFecha)
+        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+        .map(({ fecha, dia, comidas }) => ({
+            fecha,
+            dia,
+            comidas: comidas.filter(c => c && c.nombre)
+        }))
+        .filter(({ comidas }) => comidas.length > 0);
+}
+
+function generarTextoPlanSemanal() {
+    const bloques = obtenerBloquesPlanSemanal();
+
+    if (bloques.length === 0) {
+        return '🍽️ Plan semanal\n\nAún no hay comidas programadas para esta semana.';
+    }
+
+    const textoBloques = bloques.map(({ dia, fecha, comidas }) => {
+        const lineas = comidas.map(c => `• ${obtenerNombreTipoComida(c.tipo)}: ${c.nombre}`);
+        return `${dia} (${fecha})\n${lineas.join('\n')}`;
+    });
+
+    return `🍽️ Plan Semanal\n\n${textoBloques.join('\n\n')}`;
+}
+
+async function exportarPlanSemanal() {
+    const bloques = obtenerBloquesPlanSemanal();
+    const texto = generarTextoPlanSemanal();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const width = 620;
+    const left = 42;
+    const cardX = 18;
+    const cardY = 18;
+    const cardW = width - 36;
+    const maxTextWidth = cardW - 90;
+
+    const bodyLines = [];
+    if (bloques.length === 0) {
+        bodyLines.push('Aún no hay comidas programadas para esta semana.');
+    } else {
+        bloques.forEach(({ dia, fecha, comidas }) => {
+            bodyLines.push(`${dia} (${fecha})`);
+            comidas.forEach(comida => {
+                bodyLines.push(`• ${obtenerNombreTipoComida(comida.tipo)}: ${comida.nombre}`);
+            });
+            bodyLines.push('');
+        });
+    }
+
+    const layout = [];
+    let textY = 170;
+    const lineHeight = 28;
+    const spacing = 8;
+
+    bodyLines.forEach((line) => {
+        const isDay = line.includes('(') && !line.includes('•');
+        const font = isDay ? 'bold 22px sans-serif' : '20px sans-serif';
+        ctx.font = font;
+        const wrapped = wrapText(ctx, line, maxTextWidth);
+        layout.push({ line, font, wrapped });
+        textY += wrapped.length * (lineHeight + 4) + (line.includes('•') || line.includes('(') ? spacing : 0);
+    });
+
+    const finalHeight = Math.max(700, textY + 200);
+    canvas.width = width;
+    canvas.height = finalHeight;
+
+    const bg = ctx.createLinearGradient(0, 0, width, finalHeight);
+    bg.addColorStop(0, '#fffaf5');
+    bg.addColorStop(0.5, '#fff1e3');
+    bg.addColorStop(1, '#fef7ef');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, width, finalHeight);
+
+    const glowA = ctx.createRadialGradient(width * 0.2, 0, 0, width * 0.2, 0, 420);
+    glowA.addColorStop(0, 'rgba(251,146,60,0.25)');
+    glowA.addColorStop(1, 'rgba(251,146,60,0)');
+    ctx.fillStyle = glowA;
+    ctx.fillRect(0, 0, width, finalHeight);
+
+    const glowB = ctx.createRadialGradient(width * 0.8, finalHeight * 0.75, 0, width * 0.8, finalHeight * 0.75, 420);
+    glowB.addColorStop(0, 'rgba(249,115,22,0.18)');
+    glowB.addColorStop(1, 'rgba(249,115,22,0)');
+    ctx.fillStyle = glowB;
+    ctx.fillRect(0, 0, width, finalHeight);
+
+    const panelX = 36;
+    const panelY = 30;
+    const panelW = width - 72;
+    const panelH = finalHeight - 60;
+    ctx.fillStyle = 'rgba(255,255,255,0.68)';
+    ctx.strokeStyle = 'rgba(249,115,22,0.18)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(panelX + 24, panelY);
+    ctx.lineTo(panelX + panelW - 24, panelY);
+    ctx.quadraticCurveTo(panelX + panelW, panelY, panelX + panelW, panelY + 24);
+    ctx.lineTo(panelX + panelW, panelY + panelH - 24);
+    ctx.quadraticCurveTo(panelX + panelW, panelY + panelH, panelX + panelW - 24, panelY + panelH);
+    ctx.lineTo(panelX + 24, panelY + panelH);
+    ctx.quadraticCurveTo(panelX, panelY + panelH, panelX, panelY + panelH - 24);
+    ctx.lineTo(panelX, panelY + 24);
+    ctx.quadraticCurveTo(panelX, panelY, panelX + 24, panelY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    const headerX = 58;
+    const headerY = 58;
+    const headerW = width - 116;
+    const headerH = 120;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.moveTo(headerX + 20, headerY);
+    ctx.lineTo(headerX + headerW - 20, headerY);
+    ctx.quadraticCurveTo(headerX + headerW, headerY, headerX + headerW, headerY + 20);
+    ctx.lineTo(headerX + headerW, headerY + headerH - 20);
+    ctx.quadraticCurveTo(headerX + headerW, headerY + headerH, headerX + headerW - 20, headerY + headerH);
+    ctx.lineTo(headerX + 20, headerY + headerH);
+    ctx.quadraticCurveTo(headerX, headerY + headerH, headerX, headerY + headerH - 20);
+    ctx.lineTo(headerX, headerY + 20);
+    ctx.quadraticCurveTo(headerX, headerY, headerX + 20, headerY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.arc(headerX + 60, headerY + 60, 28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 28px sans-serif';
+    ctx.fillText('🍽', headerX + 43, headerY + 70);
+
+    ctx.fillStyle = '#111827';
+    ctx.font = '900 34px sans-serif';
+    ctx.fillText('Cookly', headerX + 110, headerY + 62);
+
+    ctx.fillStyle = '#f97316';
+    ctx.font = '700 18px sans-serif';
+    ctx.fillText('Plan semanal', headerX + 110, headerY + 90);
+
+    const badgeX = width - 208;
+    const badgeY = headerY + 26;
+    ctx.fillStyle = '#fff7ed';
+    ctx.beginPath();
+    ctx.moveTo(badgeX + 18, badgeY);
+    ctx.lineTo(badgeX + 110, badgeY);
+    ctx.quadraticCurveTo(badgeX + 130, badgeY, badgeX + 130, badgeY + 18);
+    ctx.lineTo(badgeX + 130, badgeY + 42);
+    ctx.quadraticCurveTo(badgeX + 130, badgeY + 60, badgeX + 110, badgeY + 60);
+    ctx.lineTo(badgeX + 18, badgeY + 60);
+    ctx.quadraticCurveTo(badgeX, badgeY + 60, badgeX, badgeY + 42);
+    ctx.lineTo(badgeX, badgeY + 18);
+    ctx.quadraticCurveTo(badgeX, badgeY, badgeX + 18, badgeY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#f97316';
+    ctx.font = '700 16px sans-serif';
+    ctx.fillText('Todo listo', badgeX + 18, badgeY + 38);
+
+    let y = 210;
+    const dayCardPadding = 22;
+
+    bloques.forEach(({ dia, fecha, comidas }) => {
+        const blockH = Math.max(110, 62 + comidas.length * 52);
+        const blockX = 72;
+        const blockW = width - 144;
+
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = 'rgba(249,115,22,0.18)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(blockX + 18, y);
+        ctx.lineTo(blockX + blockW - 18, y);
+        ctx.quadraticCurveTo(blockX + blockW, y, blockX + blockW, y + 18);
+        ctx.lineTo(blockX + blockW, y + blockH - 18);
+        ctx.quadraticCurveTo(blockX + blockW, y + blockH, blockX + blockW - 18, y + blockH);
+        ctx.lineTo(blockX + 18, y + blockH);
+        ctx.quadraticCurveTo(blockX, y + blockH, blockX, y + blockH - 18);
+        ctx.lineTo(blockX, y + 18);
+        ctx.quadraticCurveTo(blockX, y, blockX + 18, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(blockX + 16, y + 18, 6, blockH - 36);
+
+        ctx.fillStyle = '#111827';
+        ctx.font = '700 28px sans-serif';
+        ctx.fillText(dia, blockX + 36, y + 42);
+
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '500 18px sans-serif';
+        ctx.fillText(fecha, blockX + blockW - 150, y + 42);
+
+        let rowY = y + 72;
+        comidas.forEach(comida => {
+            const tipo = obtenerNombreTipoComida(comida.tipo);
+            const nombre = comida.nombre.length > 42 ? `${comida.nombre.slice(0, 39)}…` : comida.nombre;
+
+            ctx.fillStyle = '#fff7ed';
+            ctx.beginPath();
+            ctx.moveTo(blockX + 36, rowY);
+            ctx.lineTo(blockX + 150, rowY);
+            ctx.quadraticCurveTo(blockX + 160, rowY, blockX + 160, rowY + 12);
+            ctx.lineTo(blockX + 160, rowY + 32);
+            ctx.quadraticCurveTo(blockX + 160, rowY + 44, blockX + 150, rowY + 44);
+            ctx.lineTo(blockX + 36, rowY + 44);
+            ctx.quadraticCurveTo(blockX + 26, rowY + 44, blockX + 26, rowY + 32);
+            ctx.lineTo(blockX + 26, rowY + 12);
+            ctx.quadraticCurveTo(blockX + 26, rowY, blockX + 36, rowY);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#f97316';
+            ctx.font = '700 16px sans-serif';
+            ctx.fillText(tipo, blockX + 42, rowY + 29);
+
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '600 20px sans-serif';
+            ctx.fillText(nombre, blockX + 180, rowY + 29);
+
+            rowY += 52;
+        });
+
+        y += blockH + 18;
+    });
+
+    try {
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if (blob && navigator.clipboard && navigator.clipboard.write) {
+            await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+            ]);
+            alert('Plan semanal exportado como imagen al portapapeles.');
+            return;
+        }
+    } catch (error) {
+        console.warn('No se pudo copiar la imagen:', error);
+    }
+
+    await navigator.clipboard.writeText(texto).catch(() => {});
+    alert('Plan semanal copiado en formato de texto.');
+}
+
+document.getElementById('btnAgregarComida').onclick = exportarPlanSemanal;
+
+function pedirTipoComida() {
+    return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'block';
+        modal.innerHTML = `
+            <div class="modal-contenido">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-bold">¿Qué tipo de comida?</h3>
+                    <button type="button" class="cerrar-tipo text-gray-500 text-2xl hover:text-gray-700">&times;</button>
+                </div>
+                <div class="space-y-2">
+                    <button type="button" class="btn-tipo-comida w-full btn-primary" data-tipo="desayuno">Desayuno</button>
+                    <button type="button" class="btn-tipo-comida w-full btn-primary" data-tipo="comida">Comida</button>
+                    <button type="button" class="btn-tipo-comida w-full btn-primary" data-tipo="cena">Cena</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const cerrar = (valor = null) => {
+            modal.remove();
+            resolve(valor);
+        };
+
+        modal.querySelector('.cerrar-tipo').onclick = () => cerrar(null);
+        modal.querySelectorAll('.btn-tipo-comida').forEach((btn) => {
+            btn.onclick = () => cerrar(btn.dataset.tipo);
+        });
+        modal.onclick = (e) => { if (e.target === modal) cerrar(null); };
+    });
+}
+
+function guardarPlanLocal(fecha, tipo, recetaId) {
+    syncRequestId += 1;
+
+    const item = {
+        id: Date.now(),
+        Fecha: fecha,
+        Comida: normalizarTipoComida(tipo),
+        Receta: recetaId,
+        '¿Completado?': false
+    };
+
+    const yaExiste = estado.planSemanal.some(p => p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo));
+    if (yaExiste) {
+        estado.planSemanal = estado.planSemanal.map(p =>
+            p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo)
+                ? { ...p, Receta: recetaId, Comida: normalizarTipoComida(tipo) }
+                : p
+        );
+    } else {
+        estado.planSemanal.push(item);
+    }
+
+    renderizarPlanSemanal();
+    return item;
+}
+
 async function agregarComidaRapida(fecha, tipo) {
     if (estado.recetas.length === 0) {
         alert('No hay recetas disponibles. ¡Agrega algunas primero!');
         return;
     }
-    const recetasDisponibles = estado.recetas.map((r, i) => `${i+1}: ${r.Nombre}`).join('\n');
-    const seleccion = prompt(`Selecciona una receta (número) para ${tipo} el ${fecha}:\n${recetasDisponibles}`);
-    if (seleccion) {
-        const idx = parseInt(seleccion) - 1;
-        const receta = estado.recetas[idx];
-        if (receta) {
-            try {
-                await postBaserow(TABLA_PLAN, {
-                    Fecha: fecha,
-                    Comida: tipo,
-                    Receta: receta.id,
-                    '¿Completado?': false
-                });
-                sincronizarTodo();
-            } catch (e) {
-                alert('Error al agregar al plan. Intenta de nuevo.');
+    const receta = await seleccionarRecetaDesdeModal(estado.recetas, `Selecciona una receta para ${tipo === 'comida' ? 'Comida' : tipo} el ${fecha}`);
+    if (!receta) return;
+
+    const itemLocal = guardarPlanLocal(fecha, tipo, receta.id);
+    actualizarTipoRecetaLocal(receta.id, tipo);
+    renderizarTodo();
+
+    try {
+        const respuesta = await guardarPlanEnBaserow(fecha, tipo, receta.id);
+        if (respuesta && respuesta.id) {
+            const index = estado.planSemanal.findIndex(p =>
+                p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo)
+            );
+            if (index >= 0) {
+                estado.planSemanal[index].id = respuesta.id;
             }
+        }
+        renderizarPlanSemanal();
+    } catch (e) {
+        try {
+            const respuesta = await postBaserow(TABLA_PLAN, {
+                Fecha: fecha,
+                Comida: obtenerTipoComidaBaserow(tipo),
+                Active: true,
+                Receta: [Number(receta.id)],
+                '¿Completado?': false
+            });
+            if (respuesta && respuesta.id) {
+                await registrarConsumoReceta(Number(receta.id), 1, fecha);
+            }
+            const index = estado.planSemanal.findIndex(p =>
+                p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo)
+            );
+            if (index >= 0) {
+                estado.planSemanal[index].id = respuesta.id;
+            }
+            renderizarPlanSemanal();
+        } catch (fallbackError) {
+            estado.planSemanal = estado.planSemanal.filter(p => !(p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo) && p.Receta === receta.id && p.id === itemLocal.id));
+            renderizarPlanSemanal();
+            alert('Error al agregar al plan. Intenta de nuevo.');
         }
     }
 }
@@ -618,23 +1780,52 @@ async function cambiarComida(recetaId, fecha, tipo) {
         alert('No hay otras recetas disponibles.');
         return;
     }
-    const opciones = otrasRecetas.map((r, i) => `${i+1}: ${r.Nombre}`).join('\n');
-    const seleccion = prompt(`Reemplazar con:\n${opciones}`);
-    if (seleccion) {
-        const idx = parseInt(seleccion) - 1;
-        if (otrasRecetas[idx]) {
-            const planActual = estado.planSemanal.find(p => p.Fecha === fecha && p.Comida === tipo);
-            if (planActual) {
-                try {
-                    await fetch(`${BASEROW_API}${TABLA_PLAN}/${planActual.id}/?user_field_names=true`, {
-                        method: 'PATCH',
-                        headers: { 'Authorization': `Token ${TOKEN}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ Receta: otrasRecetas[idx].id })
-                    });
-                    sincronizarTodo();
-                } catch (e) {
-                    alert('Error al cambiar la receta.');
+    const recetaNueva = await seleccionarRecetaDesdeModal(otrasRecetas, `Reemplazar para ${tipo === 'comida' ? 'Comida' : tipo}`);
+    if (!recetaNueva) return;
+
+    const planActual = estado.planSemanal.find(p => p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo));
+    if (planActual) {
+        const itemLocal = guardarPlanLocal(fecha, tipo, recetaNueva.id);
+        actualizarTipoRecetaLocal(recetaNueva.id, tipo);
+        renderizarTodo();
+            try {
+                const respuesta = await guardarPlanEnBaserow(fecha, tipo, recetaNueva.id);
+            if (respuesta && respuesta.id) {
+                const index = estado.planSemanal.findIndex(p =>
+                    p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo)
+                );
+                if (index >= 0) {
+                    estado.planSemanal[index].id = respuesta.id;
                 }
+            }
+            renderizarPlanSemanal();
+        } catch (e) {
+            try {
+                const respuesta = await postBaserow(TABLA_PLAN, {
+                    Fecha: fecha,
+                    Comida: obtenerTipoComidaBaserow(tipo),
+                    Active: true,
+                    Receta: [Number(recetaNueva.id)],
+                    '¿Completado?': false
+                });
+                if (respuesta && respuesta.id) {
+                    await registrarConsumoReceta(Number(recetaNueva.id), 1, fecha);
+                }
+                const index = estado.planSemanal.findIndex(p =>
+                    p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo)
+                );
+                if (index >= 0) {
+                    estado.planSemanal[index].id = respuesta.id;
+                }
+                renderizarPlanSemanal();
+            } catch (fallbackError) {
+                estado.planSemanal = estado.planSemanal.map(p =>
+                    p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo)
+                        ? { ...p, Receta: recetaId }
+                        : p
+                );
+                renderizarPlanSemanal();
+                alert('Error al cambiar la receta.');
             }
         }
     }
@@ -646,31 +1837,34 @@ function renderizarRecetas() {
     const filtradas = estado.categoriaActiva === 'todas' ? estado.recetas : estado.recetas.filter(r => r.Categoría === estado.categoriaActiva);
     
     if (filtradas.length === 0) {
-        container.innerHTML = `<div class="text-center text-gray-500 py-8">No hay recetas. ¡Agrega algunas! 🍳</div>`;
+        container.innerHTML = `<div class="text-center text-gray-500 py-8">No hay recetas. ¡Agrega algunas!</div>`;
         return;
     }
     
     container.innerHTML = filtradas.map(receta => `
-        <div class="card-receta bg-white rounded-xl p-3 shadow-sm border-l-4 ${getColorCategoria(receta.Categoría)}">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="font-bold">${receta.Nombre}</h3>
+        <div class="card-receta bg-white rounded-xl p-3 shadow-sm border-l-4 ${getColorCategoria(receta.Categoría)}" data-id="${receta.id}">
+            <div class="flex justify-between items-start gap-2">
+                <div class="min-w-0">
+                    <h3 class="font-bold">${obtenerTituloReceta(receta)}</h3>
                     <span class="badge-categoria ${getBadgeClass(receta.Categoría)}">${receta.Categoría || 'Sin categoría'}</span>
                     <span class="text-xs text-gray-500 ml-2">⏱ ${receta.Tiempo || 30}min</span>
                 </div>
+<<<<<<< HEAD
                 <div class="flex items-center gap-2">
                     <button class="btn-editar-receta text-gray-400 hover:text-orange-600" data-id="${receta.id}"><i class="fas fa-pencil-alt"></i></button>
                     <button class="btn-usar-receta text-orange-500 hover:text-orange-700" data-id="${receta.id}"><i class="fas fa-plus-circle text-xl"></i></button>
                 </div>
+=======
+>>>>>>> 78894e79b8903968077ba7c6e82787e8ef194445
             </div>
             <p class="text-sm text-gray-600 mt-1">${receta.Ingredientes ? receta.Ingredientes.split('\n').slice(0,3).join(', ') : ''}</p>
         </div>
     `).join('');
 
-    document.querySelectorAll('.btn-usar-receta').forEach(btn => {
-        btn.onclick = () => {
-            const receta = estado.recetas.find(r => r.id === parseInt(btn.dataset.id));
-            if (receta) agregarAlPlan(receta);
+    document.querySelectorAll('.card-receta').forEach(card => {
+        card.onclick = () => {
+            const receta = estado.recetas.find(r => r.id === parseInt(card.dataset.id));
+            if (receta) mostrarDetalleReceta(receta);
         };
     });
 
@@ -711,43 +1905,50 @@ function getBadgeClass(cat) {
 // ===== DESPENSA =====
 function renderizarDespensa() {
     const container = document.getElementById('despensaContainer');
-    const idsRecetasPlan = [...new Set(estado.planSemanal.map(p => p.Receta))];
-    const recetasEnPlan = estado.recetas.filter(r => idsRecetasPlan.includes(r.id));
-    
-    let ingredientesMap = new Map();
-    recetasEnPlan.forEach(receta => {
-        if (receta.Ingredientes) {
-            receta.Ingredientes.split('\n').forEach(line => {
-                const match = line.match(/^([\d.]+)\s*(\w+)\s*(.+)$/);
-                if (match) {
-                    const [, cantidad, unidad, nombre] = match;
-                    const key = nombre.trim().toLowerCase();
-                    if (!ingredientesMap.has(key)) {
-                        ingredientesMap.set(key, { nombre: nombre.trim(), cantidad: 0, unidad, recetas: [] });
-                    }
-                    const item = ingredientesMap.get(key);
-                    item.cantidad += parseFloat(cantidad);
-                    item.recetas.push(receta.Nombre);
-                }
-            });
-        }
-    });
+    const items = estado.listaCompras.filter(item => item && item.Active !== false);
 
-    if (ingredientesMap.size === 0) {
-        container.innerHTML = `<div class="text-center text-gray-400 py-4">Sin ingredientes en tu plan semanal</div>`;
+    if (items.length === 0) {
+        container.innerHTML = `<div class="text-center text-gray-400 py-4">Sin ingredientes en tu lista de compras</div>`;
         return;
     }
 
-    container.innerHTML = [...ingredientesMap.values()].map(item => `
+    container.innerHTML = items.map(item => `
         <div class="flex items-center gap-3 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition">
-            <input type="checkbox" class="ingrediente-check h-5 w-5 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
+            <input type="checkbox" class="ingrediente-check h-5 w-5 rounded border-gray-300 text-orange-500 focus:ring-orange-500" data-id="${item.id}" ${item.Comprado ? 'checked' : ''} />
             <div class="flex-1">
-                <span class="font-medium">${item.nombre}</span>
-                <span class="text-sm text-gray-500 ml-2">${item.cantidad.toFixed(1)} ${item.unidad}</span>
-                <div class="text-xs text-gray-400">${item.recetas.join(', ')}</div>
+                <span class="font-medium ${item.Comprado ? 'line-through text-gray-400' : ''}">${item.Nombre}</span>
+                <div class="text-xs text-gray-400">${item.FechaCreacion ? new Date(item.FechaCreacion).toLocaleDateString('es', { day: '2-digit', month: 'short' }) : 'Reciente'}</div>
             </div>
+            <button type="button" class="btn-eliminar-lista text-red-500 hover:text-red-700 text-xl font-bold" data-id="${item.id}" aria-label="Eliminar ${escapeHtml(item.Nombre)}">×</button>
         </div>
     `).join('');
+
+    document.querySelectorAll('.ingrediente-check').forEach(checkbox => {
+        checkbox.onchange = async () => {
+            const id = checkbox.dataset.id;
+            const comprado = checkbox.checked;
+            try {
+                await actualizarListaCompras(id, { Comprado: comprado });
+                renderizarDespensa();
+            } catch (error) {
+                console.error('No se pudo actualizar el estado del producto:', error);
+                alert('No se pudo actualizar la compra.');
+                checkbox.checked = !comprado;
+            }
+        };
+    });
+
+    document.querySelectorAll('.btn-eliminar-lista').forEach(btn => {
+        btn.onclick = async () => {
+            try {
+                await eliminarListaCompras(btn.dataset.id);
+                renderizarDespensa();
+            } catch (error) {
+                console.error('No se pudo eliminar el producto:', error);
+                alert('No se pudo eliminar de la lista.');
+            }
+        };
+    });
 
     document.getElementById('buscarIngrediente').oninput = (e) => {
         const term = e.target.value.toLowerCase();
@@ -759,7 +1960,7 @@ function renderizarDespensa() {
 
 // ===== BÚSQUEDA POR INGREDIENTES =====
 function actualizarListaIngredientes() {
-    const datalist = document.getElementById('listaIngredientes');
+const dropdown = document.getElementById('listaIngredientesDropdown');
     const todosIngredientes = new Set();
     
     estado.recetas.forEach(receta => {
@@ -773,28 +1974,211 @@ function actualizarListaIngredientes() {
             });
         }
     });
-    
-    datalist.innerHTML = [...todosIngredientes].map(nombre => 
-        `<option value="${nombre}">`
-    ).join('');
+
+const ingredientes = [...todosIngredientes].sort((a, b) => a.localeCompare(b));
+if (!dropdown) return;
+
+dropdown.innerHTML = ingredientes.map(nombre => `
+    <button type="button" class="sugerencia-ingrediente" data-value="${escapeHtml(nombre)}">${nombre}</button>
+`).join('');
+
+dropdown.querySelectorAll('.sugerencia-ingrediente').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const input = document.getElementById('inputIngrediente');
+        input.value = btn.dataset.value;
+        dropdown.classList.remove('visible');
+        input.focus();
+    });
+});
 }
 
-document.getElementById('btnAgregarIngrediente').addEventListener('click', () => {
-    const input = document.getElementById('inputIngrediente');
-    const valor = input.value.trim().toLowerCase();
-    if (valor && !ingredientesDisponibles.includes(valor)) {
-        ingredientesDisponibles.push(valor);
-        input.value = '';
-        renderizarIngredientesSeleccionados();
-        if (ingredientesDisponibles.length > 0) {
-            buscarRecetasPorIngredientes();
+function mostrarSugerenciasIngredientes() {
+const input = document.getElementById('inputIngrediente');
+const dropdown = document.getElementById('listaIngredientesDropdown');
+if (!input || !dropdown) return;
+
+const valor = input.value.trim().toLowerCase();
+const opciones = [...dropdown.querySelectorAll('.sugerencia-ingrediente')];
+
+if (!valor) {
+    dropdown.classList.remove('visible');
+    return;
+}
+
+const filtradas = opciones.filter(btn => btn.textContent.toLowerCase().includes(valor));
+opciones.forEach(btn => {
+    const visible = filtradas.includes(btn);
+    btn.style.display = visible ? 'block' : 'none';
+});
+
+dropdown.classList.toggle('visible', filtradas.length > 0);
+}
+
+const btnBuscarRecetas = document.getElementById('btnAgregarIngrediente');
+if (btnBuscarRecetas) {
+    btnBuscarRecetas.addEventListener('click', () => {
+        const input = document.getElementById('inputIngrediente');
+        const valor = input ? input.value.trim().toLowerCase() : '';
+
+        if (valor) {
+            if (!ingredientesDisponibles.includes(valor)) {
+                ingredientesDisponibles.push(valor);
+            }
+            input.value = '';
+            document.getElementById('listaIngredientesDropdown').classList.remove('visible');
+            renderizarIngredientesSeleccionados();
         }
+
+        buscarRecetasPorIngredientes();
+    });
+}
+
+const inputIngrediente = document.getElementById('inputIngrediente');
+if (inputIngrediente) {
+    inputIngrediente.addEventListener('input', mostrarSugerenciasIngredientes);
+    inputIngrediente.addEventListener('focus', () => {
+        if (inputIngrediente.value.trim()) {
+            mostrarSugerenciasIngredientes();
+        }
+    });
+    inputIngrediente.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const dropdown = document.getElementById('listaIngredientesDropdown');
+            const primeraVisible = dropdown ? dropdown.querySelector('.sugerencia-ingrediente:not([style*="display: none"])') : null;
+            if (primeraVisible) {
+                inputIngrediente.value = primeraVisible.textContent.trim();
+            }
+            if (btnBuscarRecetas) {
+                btnBuscarRecetas.click();
+            }
+        }
+    });
+}
+
+document.addEventListener('click', (event) => {
+    const dropdown = document.getElementById('listaIngredientesDropdown');
+    const input = document.getElementById('inputIngrediente');
+    if (!dropdown || !input) return;
+    if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('visible');
     }
 });
 
-document.getElementById('inputIngrediente').addEventListener('keypress', (e) => {
+function normalizarIngredienteBusqueda(linea) {
+    const limpio = limpiarNombreIngrediente(linea || '');
+    if (!limpio) return '';
+    return limpio.toLowerCase().replace(/[^a-záéíóúñ\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function limpiarNombreIngrediente(linea) {
+    const texto = String(linea || '').trim();
+    if (!texto) return '';
+
+    const unidades = [
+        'gr', 'g', 'kg', 'mg', 'ml', 'l', 'cc', 'taza', 'tazas', 'cucharada', 'cucharadas',
+        'cucharadita', 'cucharaditas', 'cdita', 'cdta', 'pieza', 'piezas', 'diente', 'dientes',
+        'ramita', 'ramitas', 'hoja', 'hojas', 'rebanada', 'rebanadas', 'trozo', 'trozos',
+        'pizca', 'pizcas', 'unidad', 'unidades', 'sobre', 'sobres', 'litro', 'litros', 'ml', 'cl', 'oz'
+    ];
+
+    const sinCantidad = texto
+        .replace(/^\s*(?:\d+\s*\/\s*\d+|\d+\.\d+|\d+)\s*/i, '')
+        .trim();
+
+    if (!sinCantidad) return '';
+
+    const partes = sinCantidad.split(/\s+/);
+    if (partes.length > 0) {
+        const primer = partes[0].toLowerCase();
+        if (unidades.includes(primer)) {
+            let inicio = 1;
+            if (partes[1] && partes[1].toLowerCase() === 'de') {
+                inicio = 2;
+            }
+            const resto = partes.slice(inicio).join(' ').trim();
+            if (resto) return resto;
+        }
+    }
+
+    const sinPrefijo = sinCantidad.replace(/^de\s+/i, '').trim();
+    if (!sinPrefijo) return '';
+
+    return sinPrefijo.replace(/\s*[-–—]\s*.*$/, '').trim();
+}
+
+async function agregarIngredientesDelPlanAListaCompras() {
+    const idsPlan = [...new Set(estado.planSemanal
+        .map(p => p.Receta)
+        .filter(valor => valor !== null && valor !== undefined && valor !== '')
+        .map(Number)
+        .filter(Number.isFinite)
+    )];
+
+    const recetasDelPlan = estado.recetas.filter(receta => idsPlan.includes(Number(receta.id)));
+    const nombres = new Set();
+
+    recetasDelPlan.forEach(receta => {
+        const ingredientes = receta.Ingredientes || '';
+        ingredientes.split('\n').forEach(linea => {
+            const limpio = limpiarNombreIngrediente(linea);
+            if (!limpio) return;
+
+            const nombreNormalizado = limpio.replace(/\s+/g, ' ').trim();
+            if (nombreNormalizado.length > 0) {
+                nombres.add(nombreNormalizado.charAt(0).toUpperCase() + nombreNormalizado.slice(1));
+            }
+        });
+    });
+
+    const pendientes = [...nombres].filter(nombre =>
+        !estado.listaCompras.some(item => String(item.Nombre || '').toLowerCase() === nombre.toLowerCase())
+    );
+
+    if (pendientes.length === 0) {
+        alert('Ya están todos los ingredientes del plan en la lista de compras.');
+        return;
+    }
+
+    for (const nombre of pendientes) {
+        await agregarListaCompras(nombre);
+    }
+
+    renderizarDespensa();
+    alert(`Se agregaron ${pendientes.length} ingredientes del plan a la lista de compras.`);
+}
+
+document.getElementById('btnAgregarListaCompras').addEventListener('click', async () => {
+    const input = document.getElementById('inputListaCompras');
+    const valor = input.value.trim();
+    if (!valor) return;
+
+    try {
+        const nombre = valor.charAt(0).toUpperCase() + valor.slice(1);
+        const existente = estado.listaCompras.some(item => item.Nombre.toLowerCase() === nombre.toLowerCase());
+        if (!existente) {
+            await agregarListaCompras(nombre);
+        }
+        input.value = '';
+        renderizarDespensa();
+    } catch (error) {
+        console.error('No se pudo agregar el producto a la lista:', error);
+        alert('No se pudo guardar el producto en la lista de compras.');
+    }
+});
+
+document.getElementById('btnAgregarIngredientesPlan').onclick = async () => {
+    try {
+        await agregarIngredientesDelPlanAListaCompras();
+    } catch (error) {
+        console.error('No se pudieron agregar los ingredientes del plan:', error);
+        alert('No se pudieron agregar los ingredientes del plan.');
+    }
+};
+
+document.getElementById('inputListaCompras').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-        document.getElementById('btnAgregarIngrediente').click();
+        document.getElementById('btnAgregarListaCompras').click();
     }
 });
 
@@ -832,58 +2216,53 @@ function renderizarIngredientesSeleccionados() {
 }
 
 function buscarRecetasPorIngredientes() {
+    const container = document.getElementById('resultadosPorIngredientes');
+    if (!container) return;
+
     if (ingredientesDisponibles.length === 0) {
-        document.getElementById('resultadosPorIngredientes').innerHTML = 
-            '<p class="text-gray-400 text-center">Agrega ingredientes para buscar recetas</p>';
+        container.innerHTML = '<p class="text-gray-400 text-center">Agrega ingredientes para buscar recetas</p>';
         return;
     }
 
-    const resultados = estado.recetas.map(receta => {
-        let coincidencias = 0;
-        let ingredientesFaltantes = [];
-        let ingredientesReceta = [];
+    const resultados = estado.recetas
+        .map(receta => {
+            const ingredientesReceta = (receta.Ingredientes || '')
+                .split('\n')
+                .map(normalizarIngredienteBusqueda)
+                .filter(Boolean);
 
-        if (receta.Ingredientes) {
-            ingredientesReceta = receta.Ingredientes.split('\n').map(line => {
-                const match = line.match(/^[\d.]*\s*\w*\s*(.+)$/);
-                return match ? match[1].trim().toLowerCase() : line.trim().toLowerCase();
+            const faltantes = ingredientesDisponibles.filter(ing => {
+                const ingreso = normalizeForMatch(ing);
+                return !ingredientesReceta.some(item => item.includes(ingreso) || ingreso.includes(item));
             });
 
-            ingredientesReceta.forEach(ingReceta => {
-                const coincide = ingredientesDisponibles.some(ingDisp => 
-                    ingReceta.includes(ingDisp) || ingDisp.includes(ingReceta)
-                );
-                if (coincide) {
-                    coincidencias++;
-                } else {
-                    ingredientesFaltantes.push(ingReceta);
-                }
-            });
-        }
+            const coincidencias = ingredientesDisponibles.filter(ing => {
+                const ingreso = normalizeForMatch(ing);
+                return ingredientesReceta.some(item => item.includes(ingreso) || ingreso.includes(item));
+            }).length;
 
-        const porcentajeCoincidencia = ingredientesReceta.length > 0 
-            ? Math.round((coincidencias / ingredientesReceta.length) * 100) 
-            : 0;
+            const cumpleTodos = faltantes.length === 0;
+            const porcentaje = ingredientesDisponibles.length > 0
+                ? Math.round((coincidencias / ingredientesDisponibles.length) * 100)
+                : 0;
 
-        return {
-            ...receta,
-            coincidencias,
-            totalIngredientes: ingredientesReceta.length,
-            porcentaje: porcentajeCoincidencia,
-            ingredientesFaltantes: ingredientesFaltantes.slice(0, 5)
-        };
-    });
+            return {
+                ...receta,
+                coincidencias,
+                totalIngredientes: ingredientesReceta.length,
+                porcentaje,
+                cumpleTodos,
+                ingredientesFaltantes: faltantes.slice(0, 5)
+            };
+        })
+        .filter(receta => receta.cumpleTodos)
+        .sort((a, b) => b.porcentaje - a.porcentaje || (a.Nombre || '').localeCompare(b.Nombre || ''));
 
-    resultados.sort((a, b) => b.porcentaje - a.porcentaje);
-    const resultadosFiltrados = resultados.filter(r => r.coincidencias > 0);
-
-    const container = document.getElementById('resultadosPorIngredientes');
-    
-    if (resultadosFiltrados.length === 0) {
+    if (resultados.length === 0) {
         container.innerHTML = `
             <div class="bg-yellow-50 p-4 rounded-lg text-center">
                 <p class="text-yellow-800">😅 No se encontraron recetas con esos ingredientes</p>
-                <p class="text-sm text-gray-600 mt-1">Prueba agregando más ingredientes o revisa la ortografía</p>
+                <p class="text-sm text-gray-600 mt-1">Prueba con otros ingredientes o prueba buscar por título y categoría</p>
             </div>
         `;
         return;
@@ -891,64 +2270,43 @@ function buscarRecetasPorIngredientes() {
 
     container.innerHTML = `
         <div class="flex justify-between items-center mb-2">
-            <h4 class="font-semibold">📋 ${resultadosFiltrados.length} recetas encontradas</h4>
-            <span class="text-xs text-gray-500">Mejores coincidencias primero</span>
+            <h4 class="font-semibold">📋 ${resultados.length} recetas encontradas</h4>
+            <span class="text-xs text-gray-500">Coinciden con todos los ingredientes</span>
         </div>
-        ${resultadosFiltrados.map(receta => `
-            <div class="bg-white rounded-xl p-3 shadow-sm border-l-4 ${getColorCategoria(receta.Categoría)}">
-                <div class="flex justify-between items-start">
+        ${resultados.map(receta => `
+            <div class="card-receta-match rounded-xl p-3 shadow-sm border border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50 to-white relative overflow-hidden cursor-pointer" data-id="${receta.id}">
+                <div class="absolute top-2 right-2 px-2 py-1 text-[10px] font-bold uppercase tracking-wide rounded-full bg-amber-200 text-amber-900">
+                    Coincide
+                </div>
+                <div class="flex justify-between items-start pr-2">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <h3 class="font-bold">${receta.Nombre}</h3>
+                            <h3 class="font-bold">${obtenerTituloReceta(receta)}</h3>
                             <span class="badge-categoria ${getBadgeClass(receta.Categoría)}">${receta.Categoría || 'Sin categoría'}</span>
                         </div>
                         <div class="flex items-center gap-2 mt-1">
                             <div class="w-24 bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-500 h-2 rounded-full" style="width: ${receta.porcentaje}%"></div>
+                                <div class="bg-orange-500 h-2 rounded-full" style="width: ${receta.porcentaje}%"></div>
                             </div>
-                            <span class="text-xs font-medium">${receta.porcentaje}% coincide</span>
-                            <span class="text-xs text-gray-500">(${receta.coincidencias}/${receta.totalIngredientes})</span>
+                            <span class="text-xs font-medium text-orange-700">${receta.porcentaje}% coincide</span>
                         </div>
-                        ${receta.ingredientesFaltantes.length > 0 ? `
-                            <div class="mt-1">
-                                <span class="text-xs text-red-500">Te falta:</span>
-                                <span class="text-xs text-gray-600">${receta.ingredientesFaltantes.join(', ')}</span>
-                            </div>
-                        ` : `
-                            <div class="mt-1">
-                                <span class="text-xs text-green-500">✅ ¡Tienes todos los ingredientes!</span>
-                            </div>
-                        `}
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <button class="btn-usar-receta-result text-orange-500 text-sm" data-id="${receta.id}">
-                            <i class="fas fa-plus-circle"></i> Plan
-                        </button>
-                        <button class="btn-ver-receta text-gray-500 text-sm" data-id="${receta.id}">
-                            <i class="fas fa-eye"></i> Ver
-                        </button>
                     </div>
                 </div>
             </div>
         `).join('')}
     `;
 
-    document.querySelectorAll('#resultadosPorIngredientes .btn-usar-receta-result').forEach(btn => {
-        btn.onclick = () => {
-            const receta = estado.recetas.find(r => r.id === parseInt(btn.dataset.id));
-            if (receta) agregarAlPlan(receta);
-        };
-    });
-
-    document.querySelectorAll('#resultadosPorIngredientes .btn-ver-receta').forEach(btn => {
-        btn.onclick = () => {
-            const receta = estado.recetas.find(r => r.id === parseInt(btn.dataset.id));
+    document.querySelectorAll('#resultadosPorIngredientes .card-receta-match').forEach(card => {
+        card.onclick = () => {
+            const receta = estado.recetas.find(r => r.id === parseInt(card.dataset.id));
             if (receta) mostrarDetalleReceta(receta);
         };
     });
 }
 
-document.getElementById('btnBuscarRecetas').addEventListener('click', buscarRecetasPorIngredientes);
+function normalizeForMatch(value) {
+    return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+}
 
 // ===== DETALLE DE RECETA =====
 function mostrarDetalleReceta(receta) {
@@ -958,7 +2316,7 @@ function mostrarDetalleReceta(receta) {
     modal.innerHTML = `
         <div class="modal-contenido">
             <div class="flex justify-between items-start">
-                <h3 class="text-xl font-bold">${receta.Nombre}</h3>
+                <h3 class="text-xl font-bold">${obtenerTituloReceta(receta)}</h3>
                 <button class="cerrar-detalle text-gray-500 text-2xl hover:text-gray-700">&times;</button>
             </div>
             <div class="flex gap-2 my-2 flex-wrap">
@@ -967,20 +2325,21 @@ function mostrarDetalleReceta(receta) {
                 <span class="badge-categoria bg-gray-200">${receta.Dificultad || 'Media'}</span>
             </div>
             <div class="mt-3">
-                <h4 class="font-semibold">📝 Ingredientes</h4>
-                <ul class="list-disc pl-5 text-sm">
+                <h4 class="font-semibold flex items-center gap-2"><i class="fas fa-list text-orange-500"></i> Ingredientes</h4>
+                <ul class="list-disc pl-5 text-sm mt-2">
                     ${receta.Ingredientes ? receta.Ingredientes.split('\n').map(i => `<li>${i}</li>`).join('') : '<li>No especificados</li>'}
                 </ul>
             </div>
-            <div class="mt-3">
-                <h4 class="font-semibold">👨‍🍳 Instrucciones</h4>
-                <p class="text-sm text-gray-700">${receta.Instrucciones || 'Sin instrucciones'}</p>
+            <div class="mt-4">
+                <h4 class="font-semibold flex items-center gap-2"><i class="fas fa-utensils text-orange-500"></i> Instrucciones</h4>
+                <p class="text-sm text-gray-700 mt-2">${receta.Instrucciones || 'Sin instrucciones'}</p>
             </div>
             <div class="flex gap-2 mt-4">
                 <button class="btn-agregar-plan-detalle btn-primary flex-1" data-id="${receta.id}">
-                    <i class="fas fa-plus"></i> Agregar al Plan
+                    <i class="fas fa-plus"></i> Agregar al Tipo
                 </button>
-                <button class="btn-cerrar-detalle btn-secondary">Cerrar</button>
+                <button class="btn-editar-detalle btn-secondary flex-1" data-id="${receta.id}">Editar</button>
+                <button class="btn-cerrar-detalle btn-secondary flex-1">Cerrar</button>
             </div>
         </div>
     `;
@@ -991,71 +2350,337 @@ function mostrarDetalleReceta(receta) {
         agregarAlPlan(receta);
         modal.remove();
     };
+    modal.querySelector('.btn-editar-detalle').onclick = () => {
+        modal.remove();
+        abrirFormularioEditar(receta);
+    };
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 }
 
+function escapeHtml(value) {
+    return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function abrirFormularioEditar(receta) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'block';
+    modal.innerHTML = `
+        <div class="modal-contenido">
+            <div class="flex justify-between items-start mb-3">
+                <h3 class="text-xl font-bold">✏️ Editar receta</h3>
+                <button type="button" class="cerrar-editar text-gray-500 text-2xl hover:text-gray-700">&times;</button>
+            </div>
+            <form id="formEditarReceta" class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nombre</label>
+                    <input name="Nombre" value="${escapeHtml(receta.Nombre || '')}" class="w-full p-2 border rounded-lg text-sm" required />
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tipo</label>
+                        <select name="Tipo" class="w-full p-2 border rounded-lg text-sm">
+                            <option value="Desayuno" ${String(receta.Tipo || '').toLowerCase() === 'desayuno' ? 'selected' : ''}>Desayuno</option>
+                            <option value="Comida" ${String(receta.Tipo || '').toLowerCase() === 'comida' ? 'selected' : ''}>Comida</option>
+                            <option value="Cena" ${String(receta.Tipo || '').toLowerCase() === 'cena' ? 'selected' : ''}>Cena</option>
+                            <option value="Otro" ${String(receta.Tipo || '').toLowerCase() === 'otro' ? 'selected' : ''}>Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Categoría</label>
+                        <select name="Categoría" class="w-full p-2 border rounded-lg text-sm">
+                            <option value="pescado" ${receta.Categoría === 'pescado' ? 'selected' : ''}>Pescado</option>
+                            <option value="carne" ${receta.Categoría === 'carne' ? 'selected' : ''}>Carne</option>
+                            <option value="vegetariano" ${receta.Categoría === 'vegetariano' ? 'selected' : ''}>Vegetariano</option>
+                            <option value="pasta" ${receta.Categoría === 'pasta' ? 'selected' : ''}>Pasta</option>
+                            <option value="pollo" ${receta.Categoría === 'pollo' ? 'selected' : ''}>Pollo</option>
+                            <option value="sopa" ${receta.Categoría === 'sopa' ? 'selected' : ''}>Sopa</option>
+                            <option value="ensalada" ${receta.Categoría === 'ensalada' ? 'selected' : ''}>Ensalada</option>
+                            <option value="otro" ${receta.Categoría === 'otro' ? 'selected' : ''}>Otro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tiempo (min)</label>
+                        <input name="Tiempo" type="number" min="1" value="${escapeHtml(receta.Tiempo || 30)}" class="w-full p-2 border rounded-lg text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Dificultad</label>
+                        <select name="Dificultad" class="w-full p-2 border rounded-lg text-sm">
+                            <option value="Fácil" ${String(receta.Dificultad || '').toLowerCase() === 'fácil' || String(receta.Dificultad || '').toLowerCase() === 'facil' ? 'selected' : ''}>Fácil</option>
+                            <option value="Media" ${String(receta.Dificultad || '').toLowerCase() === 'media' ? 'selected' : ''}>Media</option>
+                            <option value="Difícil" ${String(receta.Dificultad || '').toLowerCase() === 'difícil' || String(receta.Dificultad || '').toLowerCase() === 'dificil' ? 'selected' : ''}>Difícil</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Ingredientes</label>
+                    <textarea name="Ingredientes" rows="4" class="w-full p-2 border rounded-lg text-sm">${escapeHtml(receta.Ingredientes || '')}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Instrucciones</label>
+                    <textarea name="Instrucciones" rows="4" class="w-full p-2 border rounded-lg text-sm">${escapeHtml(receta.Instrucciones || '')}</textarea>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button type="submit" class="btn-primary flex-1">Guardar cambios</button>
+                    <button type="button" class="btn-secondary flex-1 cerrar-editar">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    const cerrar = () => modal.remove();
+    modal.querySelector('.cerrar-editar').onclick = cerrar;
+    modal.querySelector('#formEditarReceta').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const payload = {
+            Nombre: form.Nombre.value.trim(),
+            Tipo: form.Tipo.value,
+            Categoría: form.Categoría.value,
+            Tiempo: Number(form.Tiempo.value) || 30,
+            Dificultad: form.Dificultad.value.trim() || 'Media',
+            Ingredientes: form.Ingredientes.value.trim(),
+            Instrucciones: form.Instrucciones.value.trim()
+        };
+
+        if (!payload.Nombre) {
+            alert('El nombre de la receta es obligatorio.');
+            return;
+        }
+
+        try {
+            await fetch(`${BASEROW_API}${TABLA_RECETAS}/${receta.id}/?user_field_names=true`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Token ${TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            cerrar();
+            sincronizarTodo();
+            alert('Receta actualizada correctamente.');
+        } catch (error) {
+            console.error('Error al actualizar receta:', error);
+            alert('No se pudo guardar la receta. Inténtalo de nuevo.');
+        }
+    });
+
+    modal.onclick = (e) => { if (e.target === modal) cerrar(); };
+}
+
 // ===== RECOMENDACIONES =====
+function normalizarRelacionId(valor) {
+    if (Array.isArray(valor)) {
+        if (valor.length === 0) return null;
+        const primero = valor[0];
+        if (primero && typeof primero === 'object') {
+            return Number(primero.id ?? primero.value ?? primero);
+        }
+        return Number(primero);
+    }
+
+    if (valor && typeof valor === 'object') {
+        return Number(valor.id ?? valor.value ?? valor);
+    }
+
+    if (valor === null || valor === undefined || valor === '') return null;
+    const numero = Number(valor);
+    return Number.isFinite(numero) ? numero : null;
+}
+
+function calcularConsumoPorReceta() {
+    const consumoPorReceta = {};
+
+    estado.historial.forEach(item => {
+        if (!item || item.Active === false) return;
+        const recetaId = normalizarRelacionId(item.Receta ?? item.receta);
+        if (!recetaId) return;
+
+        const veces = Number(item.Veces_comido ?? item.VecesComido ?? item.veces_comido ?? 1);
+        const cantidad = Number.isFinite(veces) && veces > 0 ? veces : 1;
+        consumoPorReceta[recetaId] = (consumoPorReceta[recetaId] || 0) + cantidad;
+    });
+
+    return consumoPorReceta;
+}
+
+async function registrarConsumoReceta(recetaId, cantidad = 1, fecha = null) {
+    const id = Number(recetaId);
+    if (!id || cantidad <= 0) return null;
+
+    const fechaHoy = fecha || new Date().toISOString().split('T')[0];
+    const filas = estado.historial.filter(item => {
+        if (!item || item.Active === false) return false;
+        const recetaIdItem = normalizarRelacionId(item.Receta ?? item.receta);
+        const fechaItem = String(item.Fecha || item.fecha || '').slice(0, 10);
+        return recetaIdItem === id && fechaItem === fechaHoy;
+    });
+
+    const fila = filas[0];
+    const totalActual = Number(fila?.Veces_comido ?? fila?.VecesComido ?? fila?.['Veces comido'] ?? fila?.['# Veces comido'] ?? 0);
+    const nuevoTotal = totalActual + cantidad;
+
+    const variantesVeces = [
+        'Veces_comido',
+        'Veces comido',
+        'Veces Comido',
+        'VecesComido',
+        '# Veces comido',
+        '# Veces_comido'
+    ];
+
+    const hacerPatchConFallback = async (payload) => {
+        const candidates = Object.entries(payload).map(([key, value]) => {
+            const base = { [key]: value };
+            if (key === 'Veces_comido') {
+                return [base, { 'Veces comido': value }, { 'VecesComido': value }, { '# Veces comido': value }];
+            }
+            return [base];
+        }).flat();
+
+        for (const item of candidates) {
+            try {
+                const respuesta = await fetch(`${BASEROW_API}${TABLA_HISTORIAL}/${fila.id}/?user_field_names=true`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Token ${TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(item)
+                });
+                if (respuesta.ok) {
+                    return await respuesta.json();
+                }
+            } catch (error) {
+                console.warn('Fallo al hacer patch de historial, probando siguiente nombre de campo:', error);
+            }
+        }
+
+        return null;
+    };
+
+    if (fila && fila.id) {
+        const patch = await hacerPatchConFallback({ Veces_comido: nuevoTotal });
+        if (patch) {
+            estado.historial = estado.historial.map(item => 
+                Number(item.id) === Number(fila.id) ? { ...item, Veces_comido: nuevoTotal } : item
+            );
+        }
+        return patch;
+    }
+
+    const payloads = [
+        { Receta: [id], Active: true, Fecha: fechaHoy, Veces_comido: cantidad },
+        { Receta: [id], Active: true, Fecha: fechaHoy, 'Veces comido': cantidad },
+        { Receta: [id], Active: true, Fecha: fechaHoy, VecesComido: cantidad },
+        { Receta: [id], Active: true, Fecha: fechaHoy, '# Veces comido': cantidad }
+    ];
+
+    for (const payload of payloads) {
+        try {
+            const respuesta = await postBaserow(TABLA_HISTORIAL, payload);
+            if (respuesta && respuesta.id) {
+                estado.historial = [
+                    ...estado.historial,
+                    {
+                        ...respuesta,
+                        Receta: [id],
+                        Active: true,
+                        Fecha: fechaHoy,
+                        Veces_comido: cantidad
+                    }
+                ];
+                return respuesta;
+            }
+        } catch (error) {
+            console.warn('Fallo al crear fila en historial, probando siguiente nombre de campo:', error);
+        }
+    }
+
+    return null;
+}
+
 function renderizarRecomendaciones() {
     const container = document.getElementById('recomendacionesContainer');
-    const consumoPorReceta = {};
-    estado.historial.forEach(h => {
-        consumoPorReceta[h.Receta] = (consumoPorReceta[h.Receta] || 0) + h.Veces_comido;
-    });
+    if (!container) return;
 
+    const consumoPorReceta = calcularConsumoPorReceta();
     const recetasOrdenadas = [...estado.recetas].sort((a, b) => {
-        const consumoA = consumoPorReceta[a.id] || 0;
-        const consumoB = consumoPorReceta[b.id] || 0;
-        return consumoA - consumoB;
+        const consumoA = consumoPorReceta[Number(a.id)] || 0;
+        const consumoB = consumoPorReceta[Number(b.id)] || 0;
+        return consumoA - consumoB || String(a.Nombre || '').localeCompare(String(b.Nombre || ''));
     });
 
-    const topPocoConsumidas = recetasOrdenadas.slice(0, 3);
-    
+    const topPocoConsumidas = recetasOrdenadas.filter(r => !consumoPorReceta[Number(r.id)] || consumoPorReceta[Number(r.id)] === 0).slice(0, 3);
+    const recomendacionesBase = topPocoConsumidas.length ? topPocoConsumidas : recetasOrdenadas.slice(0, 3);
+
     container.innerHTML = `
-        <div class="bg-white p-3 rounded-xl shadow-sm mb-3">
-            <h3 class="font-semibold">🔥 Menos consumidas (prioridad)</h3>
-            ${topPocoConsumidas.map(r => `
-                <div class="flex justify-between items-center mt-2 p-2 bg-red-50 rounded-lg">
-                    <span>${r.Nombre}</span>
-                    <span class="text-sm bg-red-200 px-2 py-1 rounded-full">${consumoPorReceta[r.id] || 0} veces</span>
-                    <button class="btn-agregar-plan-recomendacion text-orange-500 text-sm" data-id="${r.id}">+ Plan</button>
-                </div>
-            `).join('')}
+        <div class="ia-section-card mb-3">
+            <h3 class="ia-section-title"><span class="ia-section-badge"><i class="fas fa-fire"></i></span> Menos consumidas (prioridad)</h3>
+            ${recomendacionesBase.map(r => {
+                const veces = consumoPorReceta[Number(r.id)] || 0;
+                return `
+                    <div class="flex justify-between items-center mt-2 p-2 rounded-xl gap-2 border border-orange-100 bg-orange-50/70">
+                        <span class="flex-1 text-sm font-medium text-gray-800">${obtenerTituloReceta(r)}</span>
+                        <span class="ia-metric-pill">${veces} veces</span>
+                    </div>
+                `;
+            }).join('') || '<p class="text-sm text-gray-500 mt-2">Todavía no hay recetas suficientes para recomendar.</p>'}
         </div>
-        <div class="bg-white p-3 rounded-xl shadow-sm">
-            <h3 class="font-semibold">🧠 Sugerencia del día</h3>
-            <p class="text-sm text-gray-600">Basado en tu despensa, prueba: <strong>${recetasOrdenadas[0]?.Nombre || 'Ninguna aún'}</strong></p>
+        <div class="ia-section-card">
+            <h3 class="ia-section-title"><span class="ia-section-badge"><i class="fas fa-lightbulb"></i></span> Sugerencia del día</h3>
+            <p class="text-sm text-gray-600">Basado en tu historial, prueba: <strong>${recomendacionesBase[0]?.Nombre || 'Ninguna aún'}</strong></p>
         </div>
     `;
 
-    document.querySelectorAll('.btn-agregar-plan-recomendacion').forEach(btn => {
-        btn.onclick = () => {
-            const receta = estado.recetas.find(r => r.id === parseInt(btn.dataset.id));
-            if (receta) agregarAlPlan(receta);
-        };
-    });
-
-    // Radar de consumo
     const categorias = ['pescado', 'carne', 'vegetariano', 'pasta', 'pollo', 'sopa'];
     const consumoCat = categorias.map(cat => {
-        const recetasCat = estado.recetas.filter(r => r.Categoría?.toLowerCase() === cat);
-        const total = recetasCat.reduce((sum, r) => sum + (consumoPorReceta[r.id] || 0), 0);
+        const recetasCat = estado.recetas.filter(r => String(r.Categoría || '').toLowerCase() === cat);
+        const total = recetasCat.reduce((sum, r) => sum + (consumoPorReceta[Number(r.id)] || 0), 0);
         return { categoria: cat, total };
     });
-    
+
     const maxConsumo = Math.max(...consumoCat.map(c => c.total), 1);
-    const emojis = { pescado: '🐟', carne: '🥩', vegetariano: '🥗', pasta: '🍝', pollo: '🍗', sopa: '🥣' };
-    
+    const iconos = {
+        pescado: 'fas fa-fish',
+        carne: 'fas fa-bone',
+        vegetariano: 'fas fa-leaf',
+        pasta: 'fas fa-bowl-food',
+        pollo: 'fas fa-drumstick-bite',
+        sopa: 'fas fa-mug-hot'
+    };
+    const nombresCategorias = {
+        pescado: 'Pescado',
+        carne: 'Carne',
+        vegetariano: 'Vegetariano',
+        pasta: 'Pasta',
+        pollo: 'Pollo',
+        sopa: 'Sopa'
+    };
+
     document.getElementById('radarConsumo').innerHTML = `
-        <div class="w-full grid grid-cols-3 md:grid-cols-6 gap-2 text-center">
-            ${consumoCat.map(c => `
-                <div>
-                    <div class="text-2xl">${emojis[c.categoria] || '🍽️'}</div>
-                    <div class="h-16 bg-gray-200 rounded-lg relative mt-1">
-                        <div class="absolute bottom-0 left-0 w-full bg-orange-400 rounded-lg transition-all" style="height: ${maxConsumo > 0 ? (c.total/maxConsumo)*100 : 0}%"></div>
+        <div class="w-full grid grid-cols-3 gap-2 text-center">
+            ${consumoCat.map(c => {
+                const altura = maxConsumo > 0 ? Math.max(12, (c.total / maxConsumo) * 100) : 0;
+                const icono = iconos[c.categoria] || 'fas fa-utensils';
+                const nombreCategoria = nombresCategorias[c.categoria] || 'Otro';
+                return `
+                    <div class="ia-chart-item">
+                        <div class="mb-1 text-[10px] font-bold uppercase tracking-wide text-gray-600">${nombreCategoria}</div>
+                        <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-white/60 text-lg text-orange-500 shadow-sm border border-white/60">
+                            <i class="${icono}"></i>
+                        </div>
+                        <div class="w-full h-16 bg-white/40 rounded-xl relative overflow-hidden flex items-end justify-center border border-white/40 shadow-inner">
+                            <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-orange-500 to-orange-300 rounded-xl transition-all" style="height: ${altura}%"></div>
+                        </div>
+                        <span class="mt-2 text-xs font-bold text-gray-700">${c.total}</span>
                     </div>
-                    <span class="text-xs">${c.total}</span>
-                </div>
-            `).join('')}
+                `;
+            }).join('')}
         </div>
     `;
 }
@@ -1064,18 +2689,46 @@ function renderizarRecomendaciones() {
 async function agregarAlPlan(receta) {
     if (!receta) return;
     const fecha = new Date().toISOString().split('T')[0];
-    const tipo = prompt('¿Desayuno, Almuerzo o Cena?', 'almuerzo');
-    if (tipo && ['desayuno','almuerzo','cena'].includes(tipo.toLowerCase())) {
+    const tipo = await pedirTipoComida();
+    if (tipo && ['desayuno','comida','cena'].includes(tipo.toLowerCase())) {
+        const itemLocal = guardarPlanLocal(fecha, tipo, receta.id);
+        actualizarTipoRecetaLocal(receta.id, tipo);
+        renderizarTodo();
         try {
-            await postBaserow(TABLA_PLAN, {
-                Fecha: fecha,
-                Comida: tipo.toLowerCase(),
-                Receta: receta.id,
-                '¿Completado?': false
-            });
-            sincronizarTodo();
+            const respuesta = await guardarPlanEnBaserow(fecha, tipo, receta.id);
+            if (respuesta && respuesta.id) {
+                const index = estado.planSemanal.findIndex(p =>
+                    p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo)
+                );
+                if (index >= 0) {
+                    estado.planSemanal[index].id = respuesta.id;
+                }
+            }
+            renderizarPlanSemanal();
         } catch (e) {
-            alert('Error al agregar al plan.');
+            try {
+                const respuesta = await postBaserow(TABLA_PLAN, {
+                    Fecha: fecha,
+                    Comida: obtenerTipoComidaBaserow(tipo),
+                    Active: true,
+                    Receta: [Number(receta.id)],
+                    '¿Completado?': false
+                });
+                if (respuesta && respuesta.id) {
+                    await registrarConsumoReceta(Number(receta.id), 1, fecha);
+                }
+                const index = estado.planSemanal.findIndex(p =>
+                    p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo)
+                );
+                if (index >= 0) {
+                    estado.planSemanal[index].id = respuesta.id;
+                }
+                renderizarPlanSemanal();
+            } catch (fallbackError) {
+                estado.planSemanal = estado.planSemanal.filter(p => !(p.Fecha === fecha && normalizarTipoComida(p.Comida) === normalizarTipoComida(tipo) && p.Receta === receta.id && p.id === itemLocal.id));
+                renderizarPlanSemanal();
+                alert('Error al agregar al plan.');
+            }
         }
     }
 }
@@ -1110,6 +2763,7 @@ function parsearReceta(texto) {
 
     return {
         Nombre: nombre,
+        Tipo: 'Otro',
         Ingredientes: ingredientes.join('\n'),
         Instrucciones: instrucciones.join('\n'),
         Categoría: detectarCategoria(nombre + ' ' + ingredientes.join(' ')),
@@ -1191,7 +2845,7 @@ document.getElementById('btnEliminarReceta').onclick = async () => {
 
 // ===== EVENTOS =====
 document.addEventListener('DOMContentLoaded', () => {
-    sincronizarTodo();
+sincronizarTodo();
 
     // Pestañas
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1210,13 +2864,12 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.onclick = () => {
             estado.categoriaActiva = btn.dataset.cat;
             document.querySelectorAll('.filtro-categoria').forEach(b => {
-                b.className = b.className.replace('bg-orange-600 text-white', 'bg-orange-100');
+                b.classList.remove('active');
             });
-            btn.className += ' bg-orange-600 text-white';
+            btn.classList.add('active');
             renderizarRecetas();
         };
     });
-    document.querySelector('.filtro-categoria[data-cat="todas"]')?.classList.add('bg-orange-600', 'text-white');
 
     // Modal escáner
     document.getElementById('btnEscanearReceta').onclick = () => {
@@ -1280,7 +2933,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('textoReceta').value = '';
                 document.getElementById('resultadoParse').innerHTML = '';
                 sincronizarTodo();
-                alert('✅ ¡Receta guardada con éxito!');
+                alert('Receta guardada con éxito.');
             } catch (e) {
                 alert('Error al guardar la receta: ' + e.message);
             }
@@ -1289,10 +2942,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Compartir lista
     document.getElementById('btnCompartirLista').onclick = () => {
-        const items = document.querySelectorAll('#despensaContainer .flex');
-        const texto = [...items].map(el => el.textContent.trim()).join('\n');
+        const items = estado.listaCompras
+            .filter(item => item && item.Active !== false)
+            .map(item => item.Nombre.trim())
+            .filter(Boolean);
+
+        const texto = items.length
+            ? `🛒 Lista de Compras 🧾\n\n${items.map((nombre, index) => `${index + 1}. ${nombre}`).join('\n')}`
+            : '🛒 Lista de Compras 🧾\n\nTu lista está vacía.';
+
         if (navigator.share) {
-            navigator.share({ title: 'Lista de Compras Cookly', text: texto });
+            navigator.share({ title: '🛒 Lista de Compras 🧾', text: texto });
         } else {
             navigator.clipboard.writeText(texto).then(() => alert('¡Lista copiada al portapapeles!'));
         }
@@ -1318,20 +2978,20 @@ if ('serviceWorker' in navigator) {
 // ===== DETECTAR MODO OFFLINE =====
 window.addEventListener('online', () => {
     const estadoEl = document.getElementById('estadoConexion');
-    estadoEl.textContent = '🟢 En línea';
-    estadoEl.className = 'text-xs estado-online';
+    estadoEl.innerHTML = '<i class="fas fa-circle text-[8px]"></i> En línea';
+    estadoEl.className = 'text-xs estado-online inline-flex items-center gap-1.5';
 });
 
 window.addEventListener('offline', () => {
     const estadoEl = document.getElementById('estadoConexion');
-    estadoEl.textContent = '🔴 Sin conexión';
-    estadoEl.className = 'text-xs estado-offline';
+    estadoEl.innerHTML = '<i class="fas fa-circle text-[8px]"></i> Sin conexión';
+    estadoEl.className = 'text-xs estado-offline inline-flex items-center gap-1.5';
 });
 
 // Verificar estado inicial
 if (!navigator.onLine) {
-    document.getElementById('estadoConexion').textContent = '🔴 Sin conexión';
-    document.getElementById('estadoConexion').className = 'text-xs estado-offline';
+    document.getElementById('estadoConexion').innerHTML = '<i class="fas fa-circle text-[8px]"></i> Sin conexión';
+    document.getElementById('estadoConexion').className = 'text-xs estado-offline inline-flex items-center gap-1.5';
 }
 </script>
 
