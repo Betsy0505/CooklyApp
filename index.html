@@ -319,7 +319,7 @@
 
     <!-- ===== PESTAÑA: IA E INNOVACIONES ===== -->
     <div id="tab-innovaciones" class="tab-content hidden">
-        <h2 class="text-lg font-semibold mb-3">🧠 Recomendaciones Inteligentes</h2>
+        <h2 class="text-lg font-semibold mb-3">Recomendaciones Inteligentes</h2>
         <div id="recomendacionesContainer"></div>
         <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
             <h3 class="font-semibold">📊 Radar de Consumo</h3>
@@ -372,7 +372,7 @@
                             <option value="ensalada">ensalada</option>
                             <option value="otro">otro</option>
                         </select>
-                    </div>
+                    </div>20vj6MIW67xwLwgAhdFoSVAELd44uOU1
                     <div class="w-24">
                         <label class="text-xs font-medium text-gray-600">Tiempo (min)</label>
                         <input id="edTiempo" type="number" class="w-full p-2 border rounded-lg text-sm">
@@ -408,12 +408,13 @@
 <!-- ============================================================ -->
 <script>
 // ===== CONFIGURACIÓN BASEROW =====
+// const BASEROW_API = 'https://api.baserow.io/api/database/rows/table/';
 const BASEROW_API = 'https://api.baserow.io/api/database/rows/table/';
 const TABLA_RECETAS = '1119570'; // Reemplaza con tu ID
 const TABLA_INGREDIENTES = '1119597';
 const TABLA_PLAN = '1119572';
 const TABLA_HISTORIAL = '1119598';
-const TOKEN = 'REEMPLAZA_CON_TU_TOKEN_DE_BASEROW'; 
+const TOKEN = ''; 
 
 // ===== ESTADO GLOBAL =====
 let estado = {
