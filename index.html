@@ -544,27 +544,323 @@
         .estado-offline { color: #ef4444; }
         
         /* Responsive */
-        @media (min-width: 900px) {
-            #app {
-                padding-left: 28px;
-                padding-right: 28px;
-            }
+        /* =========================================================
+   RESPONSIVE - COOKLY
+   ========================================================= */
 
-            .tab-btn {
-                font-size: 0.95rem;
-                padding-top: 0.8rem;
-                padding-bottom: 0.8rem;
-            }
+/* Evita que cualquier elemento provoque scroll horizontal */
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
 
-            .tab-content {
-                max-width: 980px;
-                margin: 0 auto;
-            }
+* {
+    box-sizing: border-box;
+}
 
-            #recetasContainer {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+}
+
+/* Contenedor principal */
+#app {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 899px) {
+
+    #app {
+        padding: 16px;
+    }
+
+    .tab-content {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #recetasContainer {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   CELULAR
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    body {
+        font-size: 14px;
+    }
+
+    #app {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        margin: 0;
+    }
+
+
+    /* -----------------------------------------------------
+       ENCABEZADO
+       ----------------------------------------------------- */
+
+    header {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    header > div {
+        min-width: 0;
+    }
+
+    header > div:last-child {
+        margin-left: auto;
+    }
+
+    header img {
+        max-width: 150px;
+        height: auto;
+    }
+
+
+    /* -----------------------------------------------------
+       BOTONES
+       ----------------------------------------------------- */
+
+    button {
+        max-width: 100%;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        white-space: normal;
+    }
+
+
+    /* -----------------------------------------------------
+       PESTAÑAS PRINCIPALES
+       ----------------------------------------------------- */
+
+    .tab-btn {
+        min-width: 0;
+        padding: 8px 5px !important;
+        font-size: 0.75rem !important;
+        line-height: 1.2;
+        white-space: normal;
+    }
+
+    .tab-btn i {
+        display: block;
+        margin-bottom: 3px;
+    }
+
+
+    /* -----------------------------------------------------
+       CONTENIDO
+       ----------------------------------------------------- */
+
+    .tab-content {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+
+    /* -----------------------------------------------------
+       GRIDS
+       ----------------------------------------------------- */
+
+    #recetasContainer {
+        grid-template-columns: 1fr !important;
+        width: 100%;
+    }
+
+    .grid {
+        min-width: 0;
+    }
+
+
+    /* -----------------------------------------------------
+       FLEX
+       ----------------------------------------------------- */
+
+    .flex {
+        min-width: 0;
+    }
+
+    .flex > * {
+        min-width: 0;
+    }
+
+
+    /* -----------------------------------------------------
+       FILTROS DE RECETAS
+       ----------------------------------------------------- */
+
+    .filtro-categoria {
+        flex-shrink: 0;
+        font-size: 0.8rem;
+        padding: 8px 12px;
+    }
+
+
+    /* -----------------------------------------------------
+       MODALES
+       ----------------------------------------------------- */
+
+    .modal {
+        padding: 10px;
+    }
+
+    .modal-contenido {
+        width: 100%;
+        max-width: 100%;
+        margin: 5% auto;
+        padding: 16px;
+        max-height: 90vh;
+    }
+
+
+    /* -----------------------------------------------------
+       INPUTS / SELECTS / TEXTAREAS
+       ----------------------------------------------------- */
+
+    input,
+    select,
+    textarea {
+        max-width: 100%;
+        width: 100%;
+        min-width: 0;
+    }
+
+
+    /* -----------------------------------------------------
+       BOTONES EN FILAS
+       ----------------------------------------------------- */
+
+    .flex button {
+        max-width: 100%;
+    }
+
+
+    /* -----------------------------------------------------
+       TOAST
+       ----------------------------------------------------- */
+
+    .toast-container {
+        width: calc(100vw - 20px);
+        max-width: none;
+        top: 10px;
+    }
+
+
+    /* -----------------------------------------------------
+       BOTÓN FLOTANTE
+       ----------------------------------------------------- */
+
+    .btn-flotante {
+        width: 54px;
+        height: 54px;
+        right: 14px;
+        bottom: 14px;
+        font-size: 24px;
+    }
+
+
+    /* -----------------------------------------------------
+       TEXTO
+       ----------------------------------------------------- */
+
+    h1,
+    h2,
+    h3 {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    p,
+    span,
+    div {
+        overflow-wrap: break-word;
+    }
+}
+
+
+/* =========================================================
+   CELULARES MUY PEQUEÑOS
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    #app {
+        padding: 8px;
+    }
+
+    .tab-btn {
+        font-size: 0.68rem !important;
+        padding-left: 3px !important;
+        padding-right: 3px !important;
+    }
+
+    .tab-btn i {
+        font-size: 0.8rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 7px 10px;
+        font-size: 0.8rem;
+    }
+
+    .modal-contenido {
+        padding: 12px;
+    }
+}
+
+
+/* =========================================================
+   ESCRITORIO
+   ========================================================= */
+
+@media (min-width: 900px) {
+
+    #app {
+        padding-left: 28px;
+        padding-right: 28px;
+    }
+
+    .tab-btn {
+        font-size: 0.95rem;
+        padding-top: 0.8rem;
+        padding-bottom: 0.8rem;
+    }
+
+    .tab-content {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    #recetasContainer {
+        grid-template-columns: repeat(
+            2,
+            minmax(0, 1fr)
+        );
+    }
+}
 
         @media (max-width: 480px) {
             #app { padding: 12px; }
