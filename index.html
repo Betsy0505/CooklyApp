@@ -670,14 +670,46 @@
                 </button>
             </div>
             <div class="flex gap-2 mb-1">
-                <input type="text" id="inputListaCompras" placeholder="Agregar ingrediente..." class="flex-1 p-2 border rounded-lg text-sm" autocomplete="off" />
-                <button id="btnAgregarListaCompras" class="btn-primary px-3 rounded-lg text-xl leading-none" aria-label="Agregar a la lista de compras">+</button>
-            </div>
+    <input 
+        type="text"
+        id="inputListaCompras"
+        placeholder="Agregar ingrediente..."
+        class="flex-1 p-2 border rounded-lg text-sm"
+        autocomplete="off"
+    />
+
+    <button
+        id="btnAgregarListaCompras"
+        type="button"
+        class="btn-primary px-3 rounded-lg text-xl leading-none"
+        aria-label="Agregar a la lista de compras">
+        +
+    </button>
+
+    <button
+        id="btnLimpiarListaCompras"
+        type="button"
+        class="btn-secondary px-3 rounded-lg text-sm whitespace-nowrap"
+        aria-label="Limpiar lista de compras">
+        <i class="fas fa-trash"></i> Limpiar Lista
+    </button>
+</div>
+
+<div
+    id="avisoIngredienteExistente"
+    class="text-xs text-orange-600 mb-3 px-1 h-4">
+</div>
+
+<div id="despensaContainer" class="space-y-2"></div>
+
+<button
+    id="btnCompartirLista"
+    class="w-full btn-primary py-2 rounded-lg mt-3">
+    <i class="fas fa-share-alt"></i> Compartir Lista
+</button>
             <div id="avisoIngredienteExistente" class="text-xs text-orange-600 mb-3 px-1 h-4"></div>
             <div id="despensaContainer" class="space-y-2"></div>
-            <button id="btnCompartirLista" class="w-full btn-primary py-2 rounded-lg mt-3">
-                <i class="fas fa-share-alt"></i> Compartir Lista
-            </button>
+            
         </div>
     </div>
 
@@ -908,18 +940,266 @@ async function agregarListaCompras(nombre) {
 
 async function eliminarListaCompras(id) {
     const rowId = Number(id);
-    if (!rowId) return;
 
-    const respuesta = await fetch(`${BASEROW_API}${TABLA_LISTA_COMPRAS}/${rowId}/?user_field_names=true`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Token ${TOKEN}` }
-    });
-
-    if (!respuesta.ok && respuesta.status !== 404) {
-        throw new Error(`Error HTTP: ${respuesta.status}`);
+    if (!rowId) {
+        throw new Error('ID de ingrediente inválido');
     }
 
-    estado.listaCompras = estado.listaCompras.filter(item => Number(item.id) !== rowId);
+    const url = `${BASEROW_API}${TABLA_LISTA_COMPRAS}/${rowId}/`;
+
+    console.log('Eliminando ingrediente:', {
+        id: rowId,
+        url: url
+    });
+
+    const respuesta = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Token ${TOKEN}`
+        }
+    });
+
+    console.log('Respuesta DELETE:', rowId, respuesta.status);
+
+    // 204 = eliminado correctamente
+    // 404 = ya no existe, por lo tanto también lo podemos quitar de la lista
+    if (!respuesta.ok && respuesta.status !== 404) {
+        let detalle = '';
+
+        try {
+            detalle = await respuesta.text();
+        } catch (e) {
+            detalle = '';
+        }
+
+        console.error('Error eliminando fila:', {
+            id: rowId,
+            status: respuesta.status,
+            detalle: detalle
+        });
+
+        throw new Error(
+            `Error eliminando el ingrediente ${rowId}: HTTP ${respuesta.status}`
+        );
+    }
+
+    // Quitar también del estado local
+    estado.listaCompras = estado.listaCompras.filter(
+        item => Number(item.id) !== rowId
+    );
+
+    return true;
+}
+
+function mostrarConfirmacionLimpiarLista(cantidad) {
+    return new Promise((resolve) => {
+        const modal = document.createElement('div');
+
+        modal.className = 'modal';
+        modal.style.display = 'block';
+        modal.style.zIndex = '1500';
+
+        modal.innerHTML = `
+            <div class="modal-contenido" style="max-width: 420px;">
+
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-bold flex items-center gap-2">
+                        <span>⚠️</span>
+                        <span>Limpiar lista</span>
+                    </h3>
+
+                    <button
+                        type="button"
+                        class="cerrar-confirmacion text-gray-500 text-2xl hover:text-gray-700"
+                        aria-label="Cerrar">
+                        &times;
+                    </button>
+                </div>
+
+                <div class="text-gray-600 mb-5">
+                    <p class="mb-2">
+                        ¿Seguro que quieres eliminar todos los ingredientes
+                        de tu lista de compras?
+                    </p>
+
+                    <p class="text-sm text-gray-500">
+                        Se eliminarán
+                        <strong>${cantidad}</strong>
+                        ingrediente${cantidad === 1 ? '' : 's'}.
+                    </p>
+                </div>
+
+                <div class="flex gap-2">
+                    <button
+                        type="button"
+                        class="btn-secondary flex-1 cerrar-confirmacion">
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn-primary flex-1 confirmar-limpiar-lista">
+                        <i class="fas fa-trash"></i>
+                        Limpiar lista
+                    </button>
+                </div>
+
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        let terminado = false;
+
+        const cerrar = (resultado) => {
+            if (terminado) return;
+
+            terminado = true;
+            modal.remove();
+            resolve(resultado);
+        };
+
+        // Botones Cancelar y X
+        modal.querySelectorAll('.cerrar-confirmacion').forEach(btn => {
+            btn.addEventListener('click', () => cerrar(false));
+        });
+
+        // Botón Limpiar lista
+        const btnConfirmar = modal.querySelector('.confirmar-limpiar-lista');
+
+        btnConfirmar.addEventListener('click', () => {
+            cerrar(true);
+        });
+
+        // Cerrar haciendo clic fuera de la ventana
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                cerrar(false);
+            }
+        });
+    });
+}
+
+async function limpiarListaCompras() {
+
+    const items = estado.listaCompras.filter(
+        item => item && item.Active !== false
+    );
+
+    if (items.length === 0) {
+        mostrarToast(
+            'La lista de compras ya está vacía.',
+            'warning'
+        );
+        return;
+    }
+
+    const confirmar = await mostrarConfirmacionLimpiarLista(
+        items.length
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    const btn = document.getElementById(
+        'btnLimpiarListaCompras'
+    );
+
+    if (btn) {
+        setBotonCargando(
+            btn,
+            true,
+            'Limpiando...'
+        );
+    }
+
+    mostrarCargando('Limpiando lista...');
+
+    try {
+
+        let eliminados = 0;
+        let errores = 0;
+
+        // Eliminar uno por uno
+        for (const item of items) {
+
+            try {
+
+                await eliminarListaCompras(item.id);
+
+                eliminados++;
+
+            } catch (error) {
+
+                errores++;
+
+                console.error(
+                    `No se pudo eliminar ${item.Nombre} (ID ${item.id})`,
+                    error
+                );
+            }
+        }
+
+        // Volver a dejar el estado limpio
+        estado.listaCompras = [];
+
+        renderizarDespensa();
+
+        const aviso = document.getElementById(
+            'avisoIngredienteExistente'
+        );
+
+        if (aviso) {
+            aviso.textContent = '';
+        }
+
+        const input = document.getElementById(
+            'inputListaCompras'
+        );
+
+        if (input) {
+            input.value = '';
+        }
+
+        if (errores === 0) {
+
+            mostrarToast(
+                'Lista de compras limpiada correctamente.',
+                'success'
+            );
+
+        } else {
+
+            mostrarToast(
+                `Se eliminaron ${eliminados} ingredientes, pero ${errores} no pudieron eliminarse.`,
+                'error'
+            );
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Error limpiando la lista de compras:',
+            error
+        );
+
+        mostrarToast(
+            'No se pudo limpiar la lista de compras.',
+            'error'
+        );
+
+    } finally {
+
+        ocultarCargando();
+
+        if (btn) {
+            setBotonCargando(
+                btn,
+                false
+            );
+        }
+    }
 }
 
 async function actualizarListaCompras(id, cambios) {
@@ -2163,6 +2443,25 @@ document.getElementById('btnAgregarIngredientesPlan').onclick = async () => {
         ocultarCargando();
     }
 };
+
+const btnLimpiarListaCompras = document.getElementById(
+    'btnLimpiarListaCompras'
+);
+
+if (btnLimpiarListaCompras) {
+
+    btnLimpiarListaCompras.addEventListener(
+        'click',
+        async () => {
+
+            if (btnLimpiarListaCompras.disabled) {
+                return;
+            }
+
+            await limpiarListaCompras();
+        }
+    );
+}
 
 document.getElementById('inputListaCompras').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
