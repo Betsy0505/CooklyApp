@@ -1758,6 +1758,20 @@ async function cambiarComida(recetaId, fecha, tipo) {
 }
 
 // ===== RECETAS CON FILTROS =====
+function irATabRecetas() {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        const activo = b.dataset.tab === 'recetas';
+        b.className = b.className.replace(/tab-(active|inactive)/, activo ? 'tab-active' : 'tab-inactive');
+    });
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById('tab-recetas').classList.remove('hidden');
+
+    estado.categoriaActiva = 'todas';
+    document.querySelectorAll('.filtro-categoria').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === 'todas');
+    });
+}
+
 function renderizarRecetas() {
     const container = document.getElementById('recetasContainer');
     const filtradas = estado.categoriaActiva === 'todas' ? estado.recetas : estado.recetas.filter(r => r.Categoría === estado.categoriaActiva);
@@ -2858,12 +2872,24 @@ sincronizarTodo();
 
                 // Actualiza el estado local al instante, sin depender de una re-sincronización completa
                 estado.recetas = [recetaGuardada, ...estado.recetas];
+                irATabRecetas();
                 renderizarRecetas();
                 actualizarListaIngredientes();
 
                 document.getElementById('modalEscanear').style.display = 'none';
                 document.getElementById('textoReceta').value = '';
                 document.getElementById('resultadoParse').innerHTML = '';
+
+                // Resalta la tarjeta recién agregada para que se note de inmediato
+                requestAnimationFrame(() => {
+                    const card = document.querySelector(`.card-receta[data-id="${recetaGuardada.id}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.classList.add('ring-2', 'ring-orange-400');
+                        setTimeout(() => card.classList.remove('ring-2', 'ring-orange-400'), 2000);
+                    }
+                });
+
                 alert('Receta guardada con éxito.');
             } catch (e) {
                 alert('Error al guardar la receta.');
