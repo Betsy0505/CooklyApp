@@ -2444,25 +2444,23 @@ document.getElementById('btnAgregarIngredientesPlan').onclick = async () => {
     }
 };
 
-const btnLimpiarListaCompras = document.getElementById(
-    'btnLimpiarListaCompras'
-);
+const btnLimpiarListaCompras = document.getElementById('btnLimpiarListaCompras');
 
 if (btnLimpiarListaCompras) {
+    btnLimpiarListaCompras.onclick = async function (event) {
+        event.preventDefault();
+        event.stopPropagation();
 
-    btnLimpiarListaCompras.addEventListener(
-        'click',
-        async () => {
+        if (btnLimpiarListaCompras.disabled) return;
 
-            if (btnLimpiarListaCompras.disabled) {
-                return;
-            }
-
+        try {
             await limpiarListaCompras();
+        } catch (error) {
+            console.error('Error al limpiar la lista:', error);
+            mostrarToast('No se pudo limpiar la lista de compras.', 'error');
         }
-    );
+    };
 }
-
 document.getElementById('inputListaCompras').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         document.getElementById('btnAgregarListaCompras').click();
