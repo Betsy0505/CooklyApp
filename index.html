@@ -300,15 +300,39 @@
             animation: fadeIn 0.3s;
         }
         .modal-contenido {
-            background: white;
-            margin: 10% auto;
-            padding: 24px;
-            max-width: 500px;
-            border-radius: 16px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s;
-        }
+    background: white;
+    width: min(500px, calc(100% - 24px));
+    max-width: 500px;
+    max-height: calc(100vh - 32px);
+    margin: 16px auto;
+    padding: 24px;
+    border-radius: 16px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    animation: slideUp 0.3s;
+}
+.modal-editar {
+    display: flex;
+    flex-direction: column;
+}
+
+.formulario-editar {
+    min-height: 0;
+}
+
+.formulario-editar textarea {
+    resize: vertical;
+    max-height: 180px;
+}
+
+.formulario-editar > div:last-child {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding-top: 12px;
+    padding-bottom: 2px;
+    z-index: 2;
+}
         
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -2309,7 +2333,13 @@ function mostrarDetalleReceta(receta) {
     `;
     document.body.appendChild(modal);
 
-    modal.querySelector('.cerrar-detalle, .btn-cerrar-detalle').onclick = () => modal.remove();
+    modal.querySelector('.cerrar-detalle').addEventListener('click', () => {
+    modal.remove();
+});
+
+modal.querySelector('.btn-cerrar-detalle').addEventListener('click', () => {
+    modal.remove();
+});
     modal.querySelector('.btn-agregar-plan-detalle').onclick = () => {
         agregarAlPlan(receta);
         modal.remove();
@@ -2365,12 +2395,12 @@ function abrirFormularioEditar(receta) {
     modal.className = 'modal';
     modal.style.display = 'block';
     modal.innerHTML = `
-        <div class="modal-contenido">
+        <div class="modal-contenido modal-editar">
             <div class="flex justify-between items-start mb-3">
                 <h3 class="text-xl font-bold">✏️ Editar receta</h3>
                 <button type="button" class="cerrar-editar text-gray-500 text-2xl hover:text-gray-700">&times;</button>
             </div>
-            <form id="formEditarReceta" class="space-y-3">
+            <form id="formEditarReceta" class="space-y-3 formulario-editar">
                 <div>
                     <label class="block text-sm font-medium mb-1">Nombre</label>
                     <input name="Nombre" value="${escapeHtml(receta.Nombre || '')}" class="w-full p-2 border rounded-lg text-sm" required />
@@ -2430,8 +2460,13 @@ function abrirFormularioEditar(receta) {
     `;
     document.body.appendChild(modal);
 
-    const cerrar = () => modal.remove();
-    modal.querySelector('.cerrar-editar').onclick = cerrar;
+    const cerrar = () => {
+    modal.remove();
+};
+
+modal.querySelectorAll('.cerrar-editar').forEach(btn => {
+    btn.addEventListener('click', cerrar);
+});
     modal.querySelector('#formEditarReceta').addEventListener('submit', async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -2745,38 +2780,99 @@ async function agregarAlPlan(receta) {
 // Esta función reconstruye los saltos de línea detectando dónde una palabra quedó pegada
 // directamente a un número, o donde una minúscula quedó pegada a una mayúscula.
 function normalizarTextoRecetaPegado(texto) {
-    return String(texto || '')
-        // letra/paréntesis/punto pegado directamente a un número -> nueva línea antes del número
+    let resultado = String(texto || '')
+        .replace(/\r/g, '')
+        // Separa encabezados aunque estén completamente pegados al contenido.
+        .replace(/\s*(Ingredientes?)\s*:?\s*/gi, '\nIngredientes:\n')
+        .replace(/\s*(Pasos?)\s*:?\s*/gi, '\nPasos:\n')
+        .replace(/\s*(Instrucciones?)\s*:?\s*/gi, '\nInstrucciones:\n')
+        .replace(/\s*(Preparaci[oó]n)\s*:?\s*/gi, '\nPreparación:\n')
+        .replace(/\s*(Modo\s+de\s+preparaci[oó]n)\s*:?\s*/gi, '\nModo de preparación:\n');
+
+    resultado = resultado
         .replace(/([a-záéíóúñ)\.])(\d)/gi, '$1\n$2')
-        // minúscula pegada directamente a una mayúscula -> nueva línea antes de la mayúscula
+        .replace(/(\d)([A-Za-zÁÉÍÓÚÑáéíóúñ])/g, '$1\n$2')
         .replace(/([a-záéíóúñ])([A-ZÁÉÍÓÚÑ])/g, '$1\n$2');
+
+    return resultado
+        .split('\n')
+        .map(linea => linea.trim())
+        .filter(Boolean)
+        .join('\n');
+}
+
+function esEncabezadoIngredientes(linea) {
+    return /^\s*ingredientes?\s*:?(?:\s|$)/i.test(String(linea || ''));
+}
+
+function esEncabezadoPasos(linea) {
+    return /^\s*(?:pasos?|instrucciones?|preparaci[oó]n|modo(?:\s+de\s+preparaci[oó]n)?)\s*:?(?:\s|$)/i.test(String(linea || ''));
+}
+
+function limpiarEncabezado(linea, tipo) {
+    const patron = tipo === 'ingredientes'
+        ? /^\s*ingredientes?\s*:?\s*/i
+        : /^\s*(?:pasos?|instrucciones?|preparaci[oó]n|modo(?:\s+de\s+preparaci[oó]n)?)\s*:?\s*/i;
+    return String(linea || '').replace(patron, '').trim();
+}
+
+function separarIngredientesEnLineas(texto) {
+    return String(texto || '')
+        .split(/\r?\n/)
+        .flatMap(linea => {
+            const limpia = linea
+                .replace(/^\s*[-•*]\s*/, '')
+                .trim();
+
+            if (!limpia) return [];
+
+            // Separa ingredientes delimitados por coma o punto y coma.
+            // No separa números decimales como "1,5 tazas".
+            return limpia
+                .split(/[,;]\s+(?=[A-Za-zÁÉÍÓÚÑáéíóúñ])/)
+                .map(item => item.trim())
+                .filter(Boolean)
+                .map(item => item.replace(/^y\s+/i, '').trim());
+        });
 }
 
 function parsearReceta(texto) {
-    const lines = normalizarTextoRecetaPegado(texto).split('\n').filter(l => l.trim());
-    const nombre = lines[0]?.trim() || 'Receta sin nombre';
-    
-    const idxIngredientes = lines.findIndex(l => /ingredientes?/i.test(l));
-    const idxInstrucciones = lines.findIndex(l => /instrucciones?|preparación|modo/i.test(l));
-    
-    const ingredientes = [];
-    let instrucciones = [];
-    
-    if (idxIngredientes !== -1 && idxInstrucciones !== -1 && idxInstrucciones > idxIngredientes) {
-        // Si al encabezado "Ingredientes" le quedó texto pegado en la misma línea, rescátalo también
-        const restoEncabezado = lines[idxIngredientes].replace(/ingredientes?\s*:?\s*/i, '').trim();
-        if (restoEncabezado) ingredientes.push(restoEncabezado);
+    const textoNormalizado = normalizarTextoRecetaPegado(texto)
+        // Separa pasos pegados: "leche.Derrite..." -> dos líneas.
+        .replace(/\.\s+(?=[A-ZÁÉÍÓÚÑ])/g, '.\n');
 
-        for (let i = idxIngredientes+1; i < idxInstrucciones; i++) {
-            if (lines[i].trim()) ingredientes.push(lines[i].trim());
+    const lines = textoNormalizado.split('\n').map(l => l.trim()).filter(Boolean);
+    const nombre = lines[0] || 'Receta sin nombre';
+
+    // Reconoce: Ingredientes / Pasos / Instrucciones / Preparación / Modo de preparación
+    const idxIngredientes = lines.findIndex(esEncabezadoIngredientes);
+    const idxInstrucciones = lines.findIndex((line, index) => index > idxIngredientes && esEncabezadoPasos(line));
+
+    const ingredientes = [];
+    const instrucciones = [];
+
+    if (idxIngredientes !== -1 && idxInstrucciones !== -1 && idxInstrucciones > idxIngredientes) {
+        // Puede haber contenido en la misma línea que el encabezado.
+        const restoIngredientes = limpiarEncabezado(lines[idxIngredientes], 'ingredientes');
+        if (restoIngredientes) ingredientes.push(...separarIngredientesEnLineas(restoIngredientes));
+
+        for (let i = idxIngredientes + 1; i < idxInstrucciones; i++) {
+            if (lines[i]) ingredientes.push(...separarIngredientesEnLineas(lines[i]));
         }
-        for (let i = idxInstrucciones+1; i < lines.length; i++) {
-            if (lines[i].trim()) instrucciones.push(lines[i].trim());
+
+        const restoPasos = limpiarEncabezado(lines[idxInstrucciones], 'pasos');
+        if (restoPasos) instrucciones.push(restoPasos);
+
+        for (let i = idxInstrucciones + 1; i < lines.length; i++) {
+            if (lines[i]) instrucciones.push(lines[i]);
         }
     } else {
+        // Respaldo: solo considera unidades completas, no la letra "l" dentro de palabras.
+        const patronUnidad = /(?:\b(?:gr|g|kg|mg|ml|l|cc|cl|oz|ud|pieza|piezas|taza|tazas|cucharada|cucharadas|cucharadita|cucharaditas|cdita|cdta|unidad|unidades|litro|litros|diente|dientes|trozo|trozos|pizca|pizcas|ramita|ramitas|hoja|hojas|rebanada|rebanadas|sobre|sobres)\b)/i;
+
         lines.slice(1).forEach(line => {
-            if (/\d/.test(line) && /gr|kg|l|ml|ud|pieza|taza|cuchara|unidad|gramos|litro/i.test(line)) {
-                ingredientes.push(line);
+            if (/\d/.test(line) && patronUnidad.test(line)) {
+                ingredientes.push(...separarIngredientesEnLineas(line));
             } else {
                 instrucciones.push(line);
             }
@@ -2793,6 +2889,7 @@ function parsearReceta(texto) {
         Dificultad: 'Media'
     };
 }
+
 
 
 function detectarCategoria(texto) {
