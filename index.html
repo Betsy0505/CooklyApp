@@ -551,6 +551,15 @@
 <body>
 
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ===== OVERLAY DE CARGA GLOBAL ===== -->
+<div id="overlayCargando" class="hidden fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center px-4">
+    <div class="bg-white rounded-xl px-6 py-5 shadow-lg flex flex-col items-center gap-3 max-w-xs w-full text-center">
+        <i class="fas fa-spinner fa-spin text-3xl text-orange-500"></i>
+        <span id="overlayCargandoTexto" class="text-sm font-medium text-gray-700">Cargando...</span>
+    </div>
+</div>
+
 <div id="app">
     <!-- ===== ENCABEZADO ===== -->
     <header class="flex justify-between items-center mb-4">
@@ -1843,12 +1852,15 @@ function renderizarDespensa() {
 
     document.querySelectorAll('.btn-eliminar-lista').forEach(btn => {
         btn.onclick = async () => {
+            mostrarCargando('Eliminando...');
             try {
                 await eliminarListaCompras(btn.dataset.id);
                 renderizarDespensa();
             } catch (error) {
                 console.error('No se pudo eliminar el producto:', error);
                 alert('No se pudo eliminar de la lista.');
+            } finally {
+                ocultarCargando();
             }
         };
     });
@@ -2075,10 +2087,13 @@ async function agregarIngredientesDelPlanAListaCompras() {
 }
 
 document.getElementById('btnAgregarListaCompras').addEventListener('click', async () => {
+    const btn = document.getElementById('btnAgregarListaCompras');
     const input = document.getElementById('inputListaCompras');
     const valor = input.value.trim();
     if (!valor) return;
 
+    setBotonCargando(btn, true, '');
+    mostrarCargando('Agregando ingrediente...');
     try {
         const nombre = valor.charAt(0).toUpperCase() + valor.slice(1);
         const existente = estado.listaCompras.some(item => item.Nombre.toLowerCase() === nombre.toLowerCase());
@@ -2090,15 +2105,24 @@ document.getElementById('btnAgregarListaCompras').addEventListener('click', asyn
     } catch (error) {
         console.error('No se pudo agregar el producto a la lista:', error);
         alert('No se pudo guardar el producto en la lista de compras.');
+    } finally {
+        setBotonCargando(btn, false);
+        ocultarCargando();
     }
 });
 
 document.getElementById('btnAgregarIngredientesPlan').onclick = async () => {
+    const btn = document.getElementById('btnAgregarIngredientesPlan');
+    setBotonCargando(btn, true, 'Agregando...');
+    mostrarCargando('Agregando ingredientes del plan...');
     try {
         await agregarIngredientesDelPlanAListaCompras();
     } catch (error) {
         console.error('No se pudieron agregar los ingredientes del plan:', error);
         alert('No se pudieron agregar los ingredientes del plan.');
+    } finally {
+        setBotonCargando(btn, false);
+        ocultarCargando();
     }
 };
 
@@ -2287,6 +2311,41 @@ function escapeHtml(value) {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
+// Pone/quita un estado de "cargando" (spinner + texto) en un botón mientras dura una operación async.
+// Overlay de carga a pantalla completa: fondo oscurecido + mensaje al centro
+function mostrarCargando(mensaje = 'Cargando...') {
+    const overlay = document.getElementById('overlayCargando');
+    const texto = document.getElementById('overlayCargandoTexto');
+    if (!overlay) return;
+    if (texto) texto.textContent = mensaje;
+    overlay.classList.remove('hidden');
+}
+
+function ocultarCargando() {
+    const overlay = document.getElementById('overlayCargando');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+}
+
+function setBotonCargando(btn, cargando, textoCargando = 'Guardando...') {
+    if (!btn) return;
+    if (cargando) {
+        if (btn.dataset.textoOriginal === undefined) {
+            btn.dataset.textoOriginal = btn.innerHTML;
+        }
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${textoCargando}`;
+    } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        if (btn.dataset.textoOriginal !== undefined) {
+            btn.innerHTML = btn.dataset.textoOriginal;
+            delete btn.dataset.textoOriginal;
+        }
+    }
+}
+
 function abrirFormularioEditar(receta) {
     const modal = document.createElement('div');
     modal.className = 'modal';
@@ -2362,6 +2421,7 @@ function abrirFormularioEditar(receta) {
     modal.querySelector('#formEditarReceta').addEventListener('submit', async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
+        const btnGuardarCambios = form.querySelector('button[type="submit"]');
         const payload = {
             Nombre: form.Nombre.value.trim(),
             Tipo: form.Tipo.value,
@@ -2377,6 +2437,8 @@ function abrirFormularioEditar(receta) {
             return;
         }
 
+        setBotonCargando(btnGuardarCambios, true, 'Guardando...');
+        mostrarCargando('Guardando cambios...');
         try {
             await fetch(`${BASEROW_API}${TABLA_RECETAS}/${receta.id}/?user_field_names=true`, {
                 method: 'PATCH',
@@ -2392,6 +2454,9 @@ function abrirFormularioEditar(receta) {
         } catch (error) {
             console.error('Error al actualizar receta:', error);
             alert('No se pudo guardar la receta. Inténtalo de nuevo.');
+        } finally {
+            setBotonCargando(btnGuardarCambios, false);
+            ocultarCargando();
         }
     });
 
@@ -2786,8 +2851,8 @@ sincronizarTodo();
         `;
         document.getElementById('btnGuardarParse').onclick = async () => {
             const btnGuardar = document.getElementById('btnGuardarParse');
-            btnGuardar.disabled = true;
-            btnGuardar.textContent = 'Guardando...';
+            setBotonCargando(btnGuardar, true, 'Guardando...');
+            mostrarCargando('Guardando receta...');
             try {
                 const recetaGuardada = await postBaserow(TABLA_RECETAS, recetaParseada);
 
@@ -2803,8 +2868,8 @@ sincronizarTodo();
             } catch (e) {
                 alert('Error al guardar la receta.');
             } finally {
-                btnGuardar.disabled = false;
-                btnGuardar.textContent = 'Guardar Receta';
+                setBotonCargando(btnGuardar, false);
+                ocultarCargando();
             }
         };
     };
@@ -2817,8 +2882,8 @@ sincronizarTodo();
             .filter(Boolean);
 
         const texto = items.length
-            ? `Lista de Compras 🧾\n\n${items.map((nombre, index) => `${index + 1}.${nombre}`).join('\n')}`
-            : 'Lista de Compras 🧾\n\nTu lista está vacía.';
+            ? `🛒 Lista de Compras 🧾\n\n${items.map((nombre, index) => `${index + 1}. 🥕 ${nombre}`).join('\n')}`
+            : '🛒 Lista de Compras 🧾\n\nTu lista está vacía.';
 
         navigator.clipboard.writeText(texto)
             .then(() => alert('✅ ¡Lista copiada al portapapeles!'))
