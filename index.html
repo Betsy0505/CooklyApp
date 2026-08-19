@@ -748,9 +748,26 @@ const TABLA_PLAN = '1119572';
 const TABLA_HISTORIAL = '1119598';
 const TABLA_LISTA_COMPRAS = '1134840';
 
-function obtenerTokenBaserow() {
-    const tokenGuardado = window.BASEROW_TOKEN || localStorage.getItem('BASEROW_TOKEN') || '';
-    return String(tokenGuardado).trim();
+async function obtenerTokenBaserow() {
+    let tokenGuardado = window.BASEROW_TOKEN || localStorage.getItem('BASEROW_TOKEN') || '';
+
+    if (!tokenGuardado) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/getToken`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await response.json();
+            tokenGuardado = data.token;
+            localStorage.setItem('BASEROW_TOKEN', tokenGuardado);
+        } catch (err) {
+            console.error('Error obteniendo token del endpoint:', err);
+            return '';
+        }
+    }
+
+    window.BASEROW_TOKEN = tokenGuardado;
+    return String(tokenGuardado || '').trim();
 }
 
 function guardarTokenBaserow(token) {
@@ -761,7 +778,7 @@ function guardarTokenBaserow(token) {
     return valor;
 }
 
-let TOKEN = obtenerTokenBaserow();
+let TOKEN = ''; // se asigna de verdad dentro de sincronizarTodo() con await
 
 // ===== ESTADO GLOBAL =====
 let estado = {
@@ -958,7 +975,9 @@ function mergePlanSemanal(serverPlan) {
 
 // ===== SINCAR DATOS =====
 async function sincronizarTodo() {
-    TOKEN = obtenerTokenBaserow();
+    TOKEN = await obtenerTokenBaserow();
+    console.log("TKEN SINCRONIZAR", TOKEN);
+    
     if (!TOKEN) {
         const token = window.prompt('Pega tu token de Baserow para cargar la información de la base de datos:');
         TOKEN = guardarTokenBaserow(token);
@@ -2725,15 +2744,26 @@ sincronizarTodo();
             </div>
         `;
         document.getElementById('btnGuardarParse').onclick = async () => {
+            const btnGuardar = document.getElementById('btnGuardarParse');
+            btnGuardar.disabled = true;
+            btnGuardar.textContent = 'Guardando...';
             try {
-                await postBaserow(TABLA_RECETAS, recetaParseada);
+                const recetaGuardada = await postBaserow(TABLA_RECETAS, recetaParseada);
+
+                // Actualiza el estado local al instante, sin depender de una re-sincronización completa
+                estado.recetas = [recetaGuardada, ...estado.recetas];
+                renderizarRecetas();
+                actualizarListaIngredientes();
+
                 document.getElementById('modalEscanear').style.display = 'none';
                 document.getElementById('textoReceta').value = '';
                 document.getElementById('resultadoParse').innerHTML = '';
-                sincronizarTodo();
                 alert('Receta guardada con éxito.');
             } catch (e) {
                 alert('Error al guardar la receta.');
+            } finally {
+                btnGuardar.disabled = false;
+                btnGuardar.textContent = 'Guardar Receta';
             }
         };
     };
