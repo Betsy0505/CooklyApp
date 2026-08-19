@@ -2809,7 +2809,7 @@ sincronizarTodo();
         };
     };
 
-    // Compartir lista
+    // Compartir lista (copia siempre al portapapeles como texto)
     document.getElementById('btnCompartirLista').onclick = () => {
         const items = estado.listaCompras
             .filter(item => item && item.Active !== false)
@@ -2817,14 +2817,12 @@ sincronizarTodo();
             .filter(Boolean);
 
         const texto = items.length
-            ? `🛒 Lista de Compras 🧾\n\n${items.map((nombre, index) => `${index + 1}. ${nombre}`).join('\n')}`
-            : '🛒 Lista de Compras 🧾\n\nTu lista está vacía.';
+            ? `Lista de Compras 🧾\n\n${items.map((nombre, index) => `${index + 1}.${nombre}`).join('\n')}`
+            : 'Lista de Compras 🧾\n\nTu lista está vacía.';
 
-        if (navigator.share) {
-            navigator.share({ title: '🛒 Lista de Compras 🧾', text: texto });
-        } else {
-            navigator.clipboard.writeText(texto).then(() => alert('¡Lista copiada al portapapeles!'));
-        }
+        navigator.clipboard.writeText(texto)
+            .then(() => alert('✅ ¡Lista copiada al portapapeles!'))
+            .catch(() => alert('❌ No se pudo copiar la lista.'));
     };
 
     // Sincronizar manual
