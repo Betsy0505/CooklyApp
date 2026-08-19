@@ -2637,8 +2637,21 @@ async function agregarAlPlan(receta) {
 }
 
 // ===== ESCÁNER DE RECETAS =====
+
+// Cuando el texto se copia de una página web, es común que se pierdan los saltos de línea
+// y todo quede pegado, ej: "Ingredientes500g de pollo...12 a 15 tortillas..."
+// Esta función reconstruye los saltos de línea detectando dónde una palabra quedó pegada
+// directamente a un número, o donde una minúscula quedó pegada a una mayúscula.
+function normalizarTextoRecetaPegado(texto) {
+    return String(texto || '')
+        // letra/paréntesis/punto pegado directamente a un número -> nueva línea antes del número
+        .replace(/([a-záéíóúñ)\.])(\d)/gi, '$1\n$2')
+        // minúscula pegada directamente a una mayúscula -> nueva línea antes de la mayúscula
+        .replace(/([a-záéíóúñ])([A-ZÁÉÍÓÚÑ])/g, '$1\n$2');
+}
+
 function parsearReceta(texto) {
-    const lines = texto.split('\n').filter(l => l.trim());
+    const lines = normalizarTextoRecetaPegado(texto).split('\n').filter(l => l.trim());
     const nombre = lines[0]?.trim() || 'Receta sin nombre';
     
     const idxIngredientes = lines.findIndex(l => /ingredientes?/i.test(l));
@@ -2647,7 +2660,11 @@ function parsearReceta(texto) {
     const ingredientes = [];
     let instrucciones = [];
     
-    if (idxIngredientes !== -1 && idxInstrucciones !== -1) {
+    if (idxIngredientes !== -1 && idxInstrucciones !== -1 && idxInstrucciones > idxIngredientes) {
+        // Si al encabezado "Ingredientes" le quedó texto pegado en la misma línea, rescátalo también
+        const restoEncabezado = lines[idxIngredientes].replace(/ingredientes?\s*:?\s*/i, '').trim();
+        if (restoEncabezado) ingredientes.push(restoEncabezado);
+
         for (let i = idxIngredientes+1; i < idxInstrucciones; i++) {
             if (lines[i].trim()) ingredientes.push(lines[i].trim());
         }
@@ -2674,6 +2691,7 @@ function parsearReceta(texto) {
         Dificultad: 'Media'
     };
 }
+
 
 function detectarCategoria(texto) {
     const lower = texto.toLowerCase();
