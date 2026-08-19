@@ -636,11 +636,11 @@
                     <i class="fas fa-plus"></i> Plan
                 </button>
             </div>
-            <div class="flex gap-2 mb-3">
-                <input type="text" id="inputListaCompras" placeholder="Agregar ingrediente..." class="flex-1 p-2 border rounded-lg text-sm" />
+            <div class="flex gap-2 mb-1">
+                <input type="text" id="inputListaCompras" placeholder="Agregar ingrediente..." class="flex-1 p-2 border rounded-lg text-sm" autocomplete="off" />
                 <button id="btnAgregarListaCompras" class="btn-primary px-3 rounded-lg text-xl leading-none" aria-label="Agregar a la lista de compras">+</button>
             </div>
-            <input type="text" id="buscarIngrediente" placeholder="Buscar ingrediente..." class="w-full p-2 border rounded-lg mb-3 text-sm" />
+            <div id="avisoIngredienteExistente" class="text-xs text-orange-600 mb-3 px-1 h-4"></div>
             <div id="despensaContainer" class="space-y-2"></div>
             <button id="btnCompartirLista" class="w-full btn-primary py-2 rounded-lg mt-3">
                 <i class="fas fa-share-alt"></i> Compartir Lista
@@ -1853,12 +1853,35 @@ function renderizarDespensa() {
         };
     });
 
-    document.getElementById('buscarIngrediente').oninput = (e) => {
-        const term = e.target.value.toLowerCase();
-        document.querySelectorAll('#despensaContainer .flex').forEach(el => {
-            el.style.display = el.textContent.toLowerCase().includes(term) ? 'flex' : 'none';
-        });
-    };
+    const inputListaCompras = document.getElementById('inputListaCompras');
+    if (inputListaCompras) {
+        inputListaCompras.oninput = filtrarListaComprasEnVivo;
+    }
+    filtrarListaComprasEnVivo();
+}
+
+// Mientras el usuario escribe en "Agregar ingrediente...", filtra la lista visible
+// y avisa si ese ingrediente ya está agregado, para no duplicarlo.
+function filtrarListaComprasEnVivo() {
+    const inputBusqueda = document.getElementById('inputListaCompras');
+    const aviso = document.getElementById('avisoIngredienteExistente');
+    const btnAgregar = document.getElementById('btnAgregarListaCompras');
+    if (!inputBusqueda) return;
+
+    const term = inputBusqueda.value.trim().toLowerCase();
+
+    document.querySelectorAll('#despensaContainer > div').forEach(el => {
+        el.style.display = !term || el.textContent.toLowerCase().includes(term) ? 'flex' : 'none';
+    });
+
+    const yaExiste = !!term && estado.listaCompras.some(item => item.Nombre.toLowerCase() === term);
+
+    if (aviso) aviso.textContent = yaExiste ? `✓ "${inputBusqueda.value.trim()}" ya está en tu lista` : '';
+    if (btnAgregar) {
+        btnAgregar.disabled = yaExiste;
+        btnAgregar.classList.toggle('opacity-50', yaExiste);
+        btnAgregar.classList.toggle('cursor-not-allowed', yaExiste);
+    }
 }
 
 // ===== BÚSQUEDA POR INGREDIENTES =====
