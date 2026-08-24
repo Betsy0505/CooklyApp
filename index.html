@@ -2955,7 +2955,9 @@ function filtrarListaComprasEnVivo() {
         el.style.display = !term || el.textContent.toLowerCase().includes(term) ? 'flex' : 'none';
     });
 
-    const yaExiste = !!term && estado.listaCompras.some(item => item.Nombre.toLowerCase() === term);
+    const yaExiste = !!term && estado.listaCompras.some(item => 
+        normalizarClaveIngredientes(item.Nombre) === normalizarClaveIngredientes(term)
+    );
 
     if (aviso) aviso.textContent = yaExiste ? `✓ "${inputBusqueda.value.trim()}" ya está en tu lista` : '';
     if (btnAgregar) {
@@ -3114,6 +3116,25 @@ function limpiarNombreIngrediente(linea) {
     return sinPrefijo.replace(/\s*[-–—]\s*.*$/, '').trim();
 }
 
+function normalizarClaveIngredientes(nombre){
+    const limpio = limpiarNombreIngrediente(nombre)
+    .toLocaleLowerCase('es-MX')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+    const equivalencias = {
+        'chile guajillo' : 'chile guajillo',
+        'chiles guajillos' : 'chile guajillo',
+        'jitomates': 'jitomate',
+        'papas': 'papa'
+    };
+
+    return equivalencias[limpio] || limpio;
+}
+
 async function agregarIngredientesDelPlanAListaCompras() {
     const idsPlan = [...new Set(estado.planSemanal
         .map(p => p.Receta)
@@ -3123,7 +3144,7 @@ async function agregarIngredientesDelPlanAListaCompras() {
     )];
 
     const recetasDelPlan = estado.recetas.filter(receta => idsPlan.includes(Number(receta.id)));
-    const nombres = new Set();
+    const ingredientesPorClave = new Map();
 
     recetasDelPlan.forEach(receta => {
         const ingredientes = receta.Ingredientes || '';
@@ -3131,16 +3152,25 @@ async function agregarIngredientesDelPlanAListaCompras() {
             const limpio = limpiarNombreIngrediente(linea);
             if (!limpio) return;
 
-            const nombreNormalizado = limpio.replace(/\s+/g, ' ').trim();
-            if (nombreNormalizado.length > 0) {
-                nombres.add(nombreNormalizado.charAt(0).toUpperCase() + nombreNormalizado.slice(1));
+            const nombre = limpio.replace(/\s+/g, ' ').trim();
+            const clave = normalizarClaveIngredientes(nombre);
+
+            if(clave && !ingredientesPorClave.has(clave)) {
+                ingredientesPorClave.set(
+                    clave,
+                    nombre.charAt(0).toUpperCase() + nombre.slice(1)
+                );
             }
         });
     });
 
-    const pendientes = [...nombres].filter(nombre =>
-        !estado.listaCompras.some(item => String(item.Nombre || '').toLowerCase() === nombre.toLowerCase())
-    );
+    const pendientes = [...ingredientesPorClave.entries()]
+    .filter(([clave]) =>
+        !estado.listaCompras.some(item =>
+            normalizarClaveIngredientes(item.Nombre) === clave
+        )
+    )
+    .map(([, nombre]) => nombre);
 
     if (pendientes.length === 0) {
         alert('Ya están todos los ingredientes del plan en la lista de compras.');
@@ -3165,7 +3195,7 @@ document.getElementById('btnAgregarListaCompras').addEventListener('click', asyn
     mostrarCargando('Agregando ingrediente...');
     try {
         const nombre = valor.charAt(0).toUpperCase() + valor.slice(1);
-        const existente = estado.listaCompras.some(item => item.Nombre.toLowerCase() === nombre.toLowerCase());
+        const existente = estado.listaCompras.some(item => normalizarClaveIngredientes(item.Nombre) === normalizarClaveIngredientes(nombre));
         if (!existente) {
             await agregarListaCompras(nombre);
         }
