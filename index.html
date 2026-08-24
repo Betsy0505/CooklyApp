@@ -2144,7 +2144,11 @@ function renderizarPlanSemanal() {
     const container = document.getElementById('planSemanalContainer');
     const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
     const hoy = new Date();
-    const inicioSemana = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + 1));
+    const diaActual = hoy.getDay();
+    // La siguiente semana se muestra desde el sábado, no hasta el domingo.
+    const diasHastaLunes = diaActual === 6 ? 2 : 1 - diaActual;
+    const inicioSemana = new Date(hoy);
+    inicioSemana.setDate(hoy.getDate() + diasHastaLunes);
     
     // Actualizar fecha
     document.getElementById('semanaFecha').textContent = inicioSemana.toLocaleDateString('es', { month: 'long', day: 'numeric' });
@@ -2173,7 +2177,8 @@ function renderizarPlanSemanal() {
                             `<span class="bg-orange-50 text-orange-800 px-2 py-1 rounded-lg flex-1 ml-2">${obtenerTituloReceta(receta, tipo)}</span>` :
                             `<button class="btn-agregar-comida text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded-lg" data-fecha="${fechaStr}" data-comida="${tipo}">+ Agregar</button>`
                         }
-                        ${receta ? `<button class="btn-cambiar-comida text-xs text-orange-500 hover:text-orange-700 ml-1" data-receta="${receta.id}" data-fecha="${fechaStr}" data-comida="${tipo}"><i class="fas fa-exchange-alt"></i></button>` : ''}
+                        ${receta ? `<button class="btn-cambiar-comida text-xs text-orange-500 hover:text-orange-700 ml-1" title="Cambiar comida" aria-label="Cambiar comida" data-receta="${receta.id}" data-fecha="${fechaStr}" data-comida="${tipo}"><i class="fas fa-exchange-alt"></i></button>
+                        <button class="btn-eliminar-comida text-xs text-red-500 hover:text-red-700 ml-2" title="Eliminar comida" aria-label="Eliminar comida" data-fecha="${fechaStr}" data-comida="${tipo}"><i class="fas fa-trash"></i></button>` : ''}
                     </div>`;
                 }).join('')}
             </div>
@@ -2186,6 +2191,9 @@ function renderizarPlanSemanal() {
     });
     document.querySelectorAll('.btn-cambiar-comida').forEach(btn => {
         btn.onclick = () => cambiarComida(btn.dataset.receta, btn.dataset.fecha, btn.dataset.comida);
+    });
+    document.querySelectorAll('.btn-eliminar-comida').forEach(btn => {
+        btn.onclick = () => eliminarComidaPlan(btn.dataset.fecha, btn.dataset.comida);
     });
 }
 
@@ -2346,36 +2354,27 @@ async function exportarPlanSemanal() {
     const cardX = 18;
     const cardY = 18;
     const cardW = width - 36;
-    const maxTextWidth = cardW - 90;
-
-    const bodyLines = [];
-    if (bloques.length === 0) {
-        bodyLines.push('Aún no hay comidas programadas para esta semana.');
-    } else {
-        bloques.forEach(({ dia, fecha, comidas }) => {
-            bodyLines.push(`${dia} (${fecha})`);
-            comidas.forEach(comida => {
-                bodyLines.push(`• ${obtenerNombreTipoComida(comida.tipo)}: ${comida.nombre}`);
-            });
-            bodyLines.push('');
+    // Calcula la altura a partir de las tarjetas reales que se dibujaran.
+    // Esto evita que el ultimo dia se salga del lienzo.
+    const blockW = width - 144;
+    const maxNombreWidth = blockW - 202;
+    const bloquesConLayout = bloques.map((bloque) => {
+        const comidas = bloque.comidas.map((comida) => {
+            // El tipo ya aparece en la etiqueta naranja; no lo repitas si el
+            // nombre de la receta fue guardado como "Comida: Nombre".
+            const nombre = String(comida.nombre || '').replace(/^(desayuno|comida|cena)\s*:\s*/i, '');
+            ctx.font = '600 20px sans-serif';
+            const lineas = wrapText(ctx, nombre, maxNombreWidth);
+            return { ...comida, nombre, lineas, alto: Math.max(44, lineas.length * 25 + 12) };
         });
-    }
-
-    const layout = [];
-    let textY = 170;
-    const lineHeight = 28;
-    const spacing = 8;
-
-    bodyLines.forEach((line) => {
-        const isDay = line.includes('(') && !line.includes('•');
-        const font = isDay ? 'bold 22px sans-serif' : '20px sans-serif';
-        ctx.font = font;
-        const wrapped = wrapText(ctx, line, maxTextWidth);
-        layout.push({ line, font, wrapped });
-        textY += wrapped.length * (lineHeight + 4) + (line.includes('•') || line.includes('(') ? spacing : 0);
+        const alto = Math.max(110, 72 + comidas.reduce((total, comida) => total + comida.alto + 8, 0));
+        return { ...bloque, comidas, alto };
     });
 
-    const finalHeight = Math.max(700, textY + 200);
+    const finalHeight = Math.max(
+        700,
+        210 + bloquesConLayout.reduce((total, bloque) => total + bloque.alto + 18, 0) + 52
+    );
     canvas.width = width;
     canvas.height = finalHeight;
 
@@ -2476,10 +2475,8 @@ async function exportarPlanSemanal() {
     let y = 210;
     const dayCardPadding = 22;
 
-    bloques.forEach(({ dia, fecha, comidas }) => {
-        const blockH = Math.max(110, 62 + comidas.length * 52);
+    bloquesConLayout.forEach(({ dia, fecha, comidas, alto: blockH }) => {
         const blockX = 72;
-        const blockW = width - 144;
 
         ctx.fillStyle = '#fff';
         ctx.strokeStyle = 'rgba(249,115,22,0.18)';
@@ -2512,17 +2509,17 @@ async function exportarPlanSemanal() {
         let rowY = y + 72;
         comidas.forEach(comida => {
             const tipo = obtenerNombreTipoComida(comida.tipo);
-            const nombre = comida.nombre.length > 42 ? `${comida.nombre.slice(0, 39)}…` : comida.nombre;
+            const rowH = comida.alto;
 
             ctx.fillStyle = '#fff7ed';
             ctx.beginPath();
             ctx.moveTo(blockX + 36, rowY);
             ctx.lineTo(blockX + 150, rowY);
             ctx.quadraticCurveTo(blockX + 160, rowY, blockX + 160, rowY + 12);
-            ctx.lineTo(blockX + 160, rowY + 32);
-            ctx.quadraticCurveTo(blockX + 160, rowY + 44, blockX + 150, rowY + 44);
-            ctx.lineTo(blockX + 36, rowY + 44);
-            ctx.quadraticCurveTo(blockX + 26, rowY + 44, blockX + 26, rowY + 32);
+            ctx.lineTo(blockX + 160, rowY + rowH - 12);
+            ctx.quadraticCurveTo(blockX + 160, rowY + rowH, blockX + 150, rowY + rowH);
+            ctx.lineTo(blockX + 36, rowY + rowH);
+            ctx.quadraticCurveTo(blockX + 26, rowY + rowH, blockX + 26, rowY + rowH - 12);
             ctx.lineTo(blockX + 26, rowY + 12);
             ctx.quadraticCurveTo(blockX + 26, rowY, blockX + 36, rowY);
             ctx.closePath();
@@ -2530,13 +2527,15 @@ async function exportarPlanSemanal() {
 
             ctx.fillStyle = '#f97316';
             ctx.font = '700 16px sans-serif';
-            ctx.fillText(tipo, blockX + 42, rowY + 29);
+            ctx.fillText(tipo, blockX + 42, rowY + Math.min(29, rowH - 14));
 
             ctx.fillStyle = '#1f2937';
             ctx.font = '600 20px sans-serif';
-            ctx.fillText(nombre, blockX + 180, rowY + 29);
+            comida.lineas.forEach((linea, indice) => {
+                ctx.fillText(linea, blockX + 180, rowY + 25 + indice * 25);
+            });
 
-            rowY += 52;
+            rowY += rowH + 8;
         });
 
         y += blockH + 18;
@@ -2724,6 +2723,92 @@ async function cambiarComida(recetaId, fecha, tipo) {
                 alert('Error al cambiar la receta.');
             }
         }
+    }
+}
+
+function mostrarConfirmacionEliminarComida(fecha, nombreTipo) {
+    return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'block';
+        modal.style.zIndex = '1500';
+
+        modal.innerHTML = `
+            <div class="modal-contenido" style="max-width: 420px;">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-bold flex items-center gap-2">
+                        <span>⚠️</span>
+                        <span>Eliminar comida</span>
+                    </h3>
+                    <button type="button" class="cerrar-confirmacion-comida text-gray-500 text-2xl hover:text-gray-700" aria-label="Cerrar">&times;</button>
+                </div>
+
+                <div class="text-gray-600 mb-5">
+                    <p class="mb-2">¿Seguro que quieres eliminar ${nombreTipo.toLowerCase()} del plan?</p>
+                    <p class="text-sm text-gray-500">Fecha: <strong>${fecha}</strong></p>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="button" class="btn-secondary flex-1 cerrar-confirmacion-comida">Cancelar</button>
+                    <button type="button" class="btn-primary flex-1 confirmar-eliminar-comida">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        let terminado = false;
+        const cerrar = (resultado) => {
+            if (terminado) return;
+            terminado = true;
+            modal.remove();
+            resolve(resultado);
+        };
+
+        modal.querySelectorAll('.cerrar-confirmacion-comida').forEach(btn => {
+            btn.addEventListener('click', () => cerrar(false));
+        });
+        modal.querySelector('.confirmar-eliminar-comida').addEventListener('click', () => cerrar(true));
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) cerrar(false);
+        });
+    });
+}
+
+async function eliminarComidaPlan(fecha, tipo) {
+    const tipoNormalizado = normalizarTipoComida(tipo);
+    const planActual = estado.planSemanal.find(p =>
+        p.Fecha === fecha && normalizarTipoComida(p.Comida) === tipoNormalizado
+    );
+
+    if (!planActual) return;
+
+    const nombreTipo = obtenerNombreTipoComida(tipoNormalizado);
+    const confirmar = await mostrarConfirmacionEliminarComida(fecha, nombreTipo);
+    if (!confirmar) return;
+
+    try {
+        // Las filas que ya llegaron a Baserow se eliminan tambien del servidor.
+        if (tieneIdRealBaserow(planActual.id)) {
+            const respuesta = await fetch(`${BASEROW_API}${TABLA_PLAN}/${planActual.id}/`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Token ${TOKEN}` }
+            });
+
+            if (!respuesta.ok && respuesta.status !== 404) {
+                throw new Error(`HTTP ${respuesta.status}`);
+            }
+        }
+
+        estado.planSemanal = estado.planSemanal.filter(p => !(
+            p.Fecha === fecha && normalizarTipoComida(p.Comida) === tipoNormalizado
+        ));
+        renderizarPlanSemanal();
+        mostrarToast(`Se eliminó ${nombreTipo.toLowerCase()} del plan.`, 'success');
+    } catch (error) {
+        console.error('No se pudo eliminar la comida del plan:', error);
+        alert('No se pudo eliminar la comida. Intenta de nuevo.');
     }
 }
 
