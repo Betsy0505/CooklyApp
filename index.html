@@ -1332,6 +1332,22 @@ body {
     class="text-xs text-orange-600 mb-3 px-1 h-4">
 </div>
 
+<div class="flex gap-2 mb-3">
+    <button
+        type="button"
+        class="btn-filtro-despensa btn-secondary text-xs px-3 py-1 rounded-lg"
+        data-filtro="todos">
+        Todos
+    </button>
+
+    <button
+    type="button"
+    class="btn-filtro-despensa btn-secondary text-xs px-3 py-1 rounded-lg"
+    data-filtro="tianguis">
+        <i class="fas fa-tag"></i>Tianguis
+    </button>
+</div>
+
 <div id="despensaContainer" class="space-y-2"></div>
 
 <button
@@ -1522,6 +1538,7 @@ let estado = {
 };
 
 let ingredientesDisponibles = [];
+let filtroEtiquetaDespensa = 'todos';
 let syncRequestId = 0;
 
 // ===== FUNCIONES BASE =====
@@ -1572,6 +1589,7 @@ function normalizarListaComprasItem(item) {
         ...item,
         id: item.id,
         Nombre: item.Nombre ?? item.nombre ?? '',
+        Etiqueta: String(item.Etiqueta ?? item.etiqueta ?? '').trim(),
         Comprado: Boolean(item.Comprado ?? item.comprado ?? false),
         Active: item.Active ?? item.active ?? true,
         FechaCreacion: item.FechaCreacion || item.fechaCreacion || new Date().toISOString().split('T')[0]
@@ -1591,6 +1609,7 @@ async function agregarListaCompras(nombre) {
 
     const payload = {
         Nombre: valor,
+        Etiqueta: '',
         Comprado: false,
         Active: true,
         FechaCreacion: new Date().toISOString().split('T')[0]
@@ -2886,7 +2905,28 @@ function getBadgeClass(cat) {
 // ===== DESPENSA =====
 function renderizarDespensa() {
     const container = document.getElementById('despensaContainer');
-    const items = estado.listaCompras.filter(item => item && item.Active !== false);
+
+    const itemsActivos = estado.listaCompras.filter(
+        item => item && item.Active !== false
+    );
+
+    const items = filtroEtiquetaDespensa === 'tianguis'
+        ? itemsActivos.filter(
+            item => String(item.Etiqueta || '').toLowerCase() === 'tianguis'
+        )
+        : itemsActivos;
+
+    document.querySelectorAll('.btn-filtro-despensa').forEach(btn => {
+        const activo = btn.dataset.filtro === filtroEtiquetaDespensa;
+
+        btn.classList.toggle('btn-primary', activo);
+        btn.classList.toggle('btn-secondary', !activo);
+
+        btn.onclick = () => {
+            filtroEtiquetaDespensa = btn.dataset.filtro;
+            renderizarDespensa();
+        };
+    });
 
     if (items.length === 0) {
         container.innerHTML = `<div class="text-center text-gray-400 py-4">Sin ingredientes en tu lista de compras</div>`;
@@ -2900,6 +2940,19 @@ function renderizarDespensa() {
                 <span class="font-medium ${item.Comprado ? 'line-through text-gray-400' : ''}">${item.Nombre}</span>
                 <div class="text-xs text-gray-400">${item.FechaCreacion ? new Date(item.FechaCreacion).toLocaleDateString('es', { day: '2-digit', month: 'short' }) : 'Reciente'}</div>
             </div>
+            <button
+    type="button"
+    class="btn-etiqueta-tianguis text-xs px-2 py-1 rounded-lg ml-1 ${
+        item.Etiqueta.toLowerCase() === 'tianguis'
+            ? 'bg-orange-100 text-orange-700'
+            : 'bg-gray-100 text-gray-500'
+    }"
+    data-id="${item.id}"
+    data-etiqueta="${item.Etiqueta.toLowerCase() === 'tianguis' ? '' : 'Tianguis'}"
+    title="${item.Etiqueta.toLowerCase() === 'tianguis' ? 'Quitar etiqueta Tianguis' : 'Marcar como Tianguis'}">
+    <i class="fas fa-tag"></i>
+    ${item.Etiqueta.toLowerCase() === 'tianguis' ? 'Tianguis' : 'Etiquetar'}
+</button>
             <button type="button" class="btn-eliminar-lista text-red-500 hover:text-red-700 text-xl font-bold" data-id="${item.id}" aria-label="Eliminar ${escapeHtml(item.Nombre)}">×</button>
         </div>
     `).join('');
@@ -2919,20 +2972,37 @@ function renderizarDespensa() {
         };
     });
 
-    document.querySelectorAll('.btn-eliminar-lista').forEach(btn => {
-        btn.onclick = async () => {
-            mostrarCargando('Eliminando...');
-            try {
-                await eliminarListaCompras(btn.dataset.id);
-                renderizarDespensa();
-            } catch (error) {
-                console.error('No se pudo eliminar el producto:', error);
-                alert('No se pudo eliminar de la lista.');
-            } finally {
-                ocultarCargando();
-            }
-        };
-    });
+document.querySelectorAll('.btn-eliminar-lista').forEach(btn => {
+    btn.onclick = async () => {
+        mostrarCargando('Eliminando...');
+
+        try {
+            await eliminarListaCompras(btn.dataset.id);
+            renderizarDespensa();
+        } catch (error) {
+            console.error('No se pudo eliminar el producto:', error);
+            alert('No se pudo eliminar de la lista.');
+        } finally {
+            ocultarCargando();
+        }
+    };
+});
+
+document.querySelectorAll('.btn-etiqueta-tianguis').forEach(btn => {
+    btn.onclick = async () => {
+        const id = btn.dataset.id;
+        const nuevaEtiqueta = btn.dataset.etiqueta;
+
+        try {
+            await actualizarListaCompras(id, { Etiqueta: nuevaEtiqueta });
+            renderizarDespensa();
+        } catch (error) {
+            console.error('No se pudo actualizar la etiqueta:', error);
+            alert('No se pudo actualizar la etiqueta.');
+        }
+    };
+});
+
 
     const inputListaCompras = document.getElementById('inputListaCompras');
     if (inputListaCompras) {
