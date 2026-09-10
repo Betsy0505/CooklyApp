@@ -1208,6 +1208,21 @@ body {
 
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
+<!-- ===== ACCESO POR PIN ===== -->
+<div id="pantallaPin" class="fixed inset-0 z-[10000] flex items-center justify-center bg-orange-50 px-4">
+    <form id="formPin" class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 text-2xl text-white">
+            <i class="fas fa-lock"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800">Cookly</h1>
+        <p class="mt-1 text-sm text-gray-500">Ingresa tu PIN para continuar</p>
+        <label class="sr-only" for="inputPin">PIN de seis dígitos</label>
+        <input id="inputPin" class="mt-6 w-full rounded-xl border border-gray-300 px-4 py-3 text-center text-2xl tracking-[0.5em] outline-none focus:border-orange-500" type="password" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+        <p id="mensajePin" class="mt-3 min-h-5 text-sm text-red-600" aria-live="polite"></p>
+        <button id="btnPin" type="submit" class="btn-primary mt-2 w-full py-3">Entrar</button>
+    </form>
+</div>
+
 <!-- ===== OVERLAY DE CARGA GLOBAL ===== -->
 <div id="overlayCargando" class="hidden fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center px-4">
     <div class="bg-white rounded-xl px-6 py-5 shadow-lg flex flex-col items-center gap-3 max-w-xs w-full text-center">
@@ -1216,7 +1231,7 @@ body {
     </div>
 </div>
 
-<div id="app">
+<div id="app" class="hidden">
     <!-- ===== ENCABEZADO ===== -->
     <header class="flex justify-between items-center mb-4">
         <div class="flex items-center gap-2">
@@ -1453,79 +1468,16 @@ const tipo = /error|no se pudo|fallo|inténtalo|ocurrió|no hay|no se encontraro
         : 'success';
 mostrarToast(texto, tipo);
 };
-// ===== CONFIGURACIÓN BASEROW =====
-const BASEROW_API = 'https://api.baserow.io/api/database/rows/table/';
+// ===== API SEGURA =====
+const API_ORIGIN = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+    ? `${window.location.protocol}//${window.location.hostname}:3000`
+    : 'https://apicookly.bytekod.online';
+const API_BASEROW = `${API_ORIGIN}/api/baserow/rows`;
 const TABLA_RECETAS = '1119570'; // Reemplaza con tu ID
 const TABLA_INGREDIENTES = '1119597';
 const TABLA_PLAN = '1119572';
 const TABLA_HISTORIAL = '1119598';
 const TABLA_LISTA_COMPRAS = '1134840';
-
-async function obtenerTokenBaserow() {
-    let tokenGuardado =
-        window.BASEROW_TOKEN ||
-        localStorage.getItem('BASEROW_TOKEN') ||
-        '';
-
-    if (!tokenGuardado) {
-        try {
-            const response = await fetch(
-                'https://apicookly.bytekod.online/api/getToken',
-                {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(
-                    `Error HTTP: ${response.status}`
-                );
-            }
-
-            const data = await response.json();
-
-            tokenGuardado = data.token;
-
-            if (!tokenGuardado) {
-                throw new Error(
-                    'El servidor no devolvió el token de Baserow'
-                );
-            }
-
-            localStorage.setItem(
-                'BASEROW_TOKEN',
-                tokenGuardado
-            );
-
-        } catch (err) {
-            console.error(
-                'Error obteniendo token de Baserow:',
-                err
-            );
-
-            return '';
-        }
-    }
-
-    window.BASEROW_TOKEN = tokenGuardado;
-
-    return String(
-        tokenGuardado || ''
-    ).trim();
-}
-
-function guardarTokenBaserow(token) {
-    const valor = String(token || '').trim();
-    if (!valor) return '';
-    window.BASEROW_TOKEN = valor;
-    localStorage.setItem('BASEROW_TOKEN', valor);
-    return valor;
-}
-
-let TOKEN = ''; // se asigna de verdad dentro de sincronizarTodo() con await
 
 // ===== ESTADO GLOBAL =====
 let estado = {
@@ -1542,21 +1494,26 @@ let filtroEtiquetaDespensa = 'todos';
 let syncRequestId = 0;
 
 // ===== FUNCIONES BASE =====
-async function fetchBaserow(tableId) {
-    if (!TOKEN) {
-        throw new Error('TOKEN_NO_CONFIGURADO');
-    }
+async function solicitarBaserow(tableId, { rowId = null, method = 'GET', data } = {}) {
+    const url = rowId
+        ? `${API_BASEROW}/${tableId}/${rowId}`
+        : `${API_BASEROW}/${tableId}`;
+    const opciones = {
+        method,
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+    };
 
+    if (data !== undefined) opciones.body = JSON.stringify(data);
+
+    const res = await fetch(url, opciones);
+    if (res.status === 401) throw new Error('ACCESO_NO_AUTORIZADO');
+    return res;
+}
+
+async function fetchBaserow(tableId) {
     try {
-        const res = await fetch(`${BASEROW_API}${tableId}/?user_field_names=true`, {
-            headers: { 'Authorization': `Token ${TOKEN}` }
-        });
-        if (res.status === 401) {
-            TOKEN = '';
-            window.BASEROW_TOKEN = '';
-            localStorage.removeItem('BASEROW_TOKEN');
-            throw new Error('TOKEN_INVALIDO');
-        }
+        const res = await solicitarBaserow(tableId);
         if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
         return await res.json();
     } catch (error) {
@@ -1567,14 +1524,7 @@ async function fetchBaserow(tableId) {
 
 async function postBaserow(tableId, data) {
     try {
-        const res = await fetch(`${BASEROW_API}${tableId}/?user_field_names=true`, {
-            method: 'POST',
-            headers: { 
-                'Authorization': `Token ${TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
+        const res = await solicitarBaserow(tableId, { method: 'POST', data });
         if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
         return await res.json();
     } catch (error) {
@@ -1630,18 +1580,13 @@ async function eliminarListaCompras(id) {
         throw new Error('ID de ingrediente inválido');
     }
 
-    const url = `${BASEROW_API}${TABLA_LISTA_COMPRAS}/${rowId}/`;
-
     console.log('Eliminando ingrediente:', {
-        id: rowId,
-        url: url
+        id: rowId
     });
 
-    const respuesta = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Token ${TOKEN}`
-        }
+    const respuesta = await solicitarBaserow(TABLA_LISTA_COMPRAS, {
+        rowId,
+        method: 'DELETE'
     });
 
     console.log('Respuesta DELETE:', rowId, respuesta.status);
@@ -1891,13 +1836,10 @@ async function actualizarListaCompras(id, cambios) {
     const rowId = Number(id);
     if (!rowId) return;
 
-    await fetch(`${BASEROW_API}${TABLA_LISTA_COMPRAS}/${rowId}/?user_field_names=true`, {
+    await solicitarBaserow(TABLA_LISTA_COMPRAS, {
+        rowId,
         method: 'PATCH',
-        headers: {
-            'Authorization': `Token ${TOKEN}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(cambios)
+        data: cambios
     });
 
     estado.listaCompras = estado.listaCompras.map(item =>
@@ -1973,26 +1915,11 @@ function mergePlanSemanal(serverPlan) {
 
 // ===== SINCAR DATOS =====
 async function sincronizarTodo() {
-    TOKEN = await obtenerTokenBaserow();
-    console.log("TKEN SINCRONIZAR", TOKEN);
-    
-    if (!TOKEN) {
-        const token = window.prompt('Pega tu token de Baserow para cargar la información de la base de datos:');
-        TOKEN = guardarTokenBaserow(token);
-    }
-
     const btn = document.getElementById('btnSync');
     if (!btn) return;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
     btn.disabled = true;
 
-    if (!TOKEN) {
-        mostrarToast('Falta el token de Baserow. Pégalo en el navegador para cargar tus datos.', 'warning');
-        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
-        btn.disabled = false;
-        return;
-    }
-    
     try {
         const syncId = ++syncRequestId;
         const [recetas, ingredientes, plan, historial, listaCompras] = await Promise.all([
@@ -2021,15 +1948,11 @@ async function sincronizarTodo() {
         
     } catch(e) {
         console.error('Error al sincronizar:', e);
-        if (String(e && e.message || '').includes('TOKEN')) {
-            const nuevoToken = window.prompt('Tu token de Baserow no sirve o está vacío. Pégalo de nuevo para cargar tus datos:');
-            TOKEN = guardarTokenBaserow(nuevoToken);
-            if (TOKEN) {
-                sincronizarTodo();
-                return;
-            }
+        if (String(e && e.message || '').includes('ACCESO_NO_AUTORIZADO')) {
+            bloquearAppPorSesionExpirada();
+            return;
         }
-        alert('Error sincronizando datos. Verifica tu conexión o tu token de Baserow.');
+        alert('Error sincronizando datos. Verifica tu conexión con el servidor.');
     }
     
     btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
@@ -2091,13 +2014,10 @@ async function actualizarTipoRecetaEnBaserow(recetaId, tipo) {
     if (!recetaId || !tipo) return;
     const tipoBaserow = obtenerTipoComidaBaserow(tipo);
     try {
-        await fetch(`${BASEROW_API}${TABLA_RECETAS}/${recetaId}/?user_field_names=true`, {
+        await solicitarBaserow(TABLA_RECETAS, {
+            rowId: recetaId,
             method: 'PATCH',
-            headers: {
-                'Authorization': `Token ${TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ Tipo: tipoBaserow })
+            data: { Tipo: tipoBaserow }
         });
     } catch (error) {
         console.error('No se pudo actualizar el tipo de la receta:', error);
@@ -2124,13 +2044,10 @@ async function guardarPlanEnBaserow(fecha, tipo, recetaId) {
 
     if (planActual && planActual.id) {
         try {
-            const res = await fetch(`${BASEROW_API}${TABLA_PLAN}/${planActual.id}/?user_field_names=true`, {
+            const res = await solicitarBaserow(TABLA_PLAN, {
+                rowId: planActual.id,
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `Token ${TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
+                data: payload
             });
 
             if (res.ok) {
@@ -2810,9 +2727,9 @@ async function eliminarComidaPlan(fecha, tipo) {
     try {
         // Las filas que ya llegaron a Baserow se eliminan tambien del servidor.
         if (tieneIdRealBaserow(planActual.id)) {
-            const respuesta = await fetch(`${BASEROW_API}${TABLA_PLAN}/${planActual.id}/`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Token ${TOKEN}` }
+            const respuesta = await solicitarBaserow(TABLA_PLAN, {
+                rowId: planActual.id,
+                method: 'DELETE'
             });
 
             if (!respuesta.ok && respuesta.status !== 404) {
@@ -3637,13 +3554,10 @@ modal.querySelectorAll('.cerrar-editar').forEach(btn => {
         setBotonCargando(btnGuardarCambios, true, 'Guardando...');
         mostrarCargando('Guardando cambios...');
         try {
-            await fetch(`${BASEROW_API}${TABLA_RECETAS}/${receta.id}/?user_field_names=true`, {
+            await solicitarBaserow(TABLA_RECETAS, {
+                rowId: receta.id,
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `Token ${TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
+                data: payload
             });
             cerrar();
             sincronizarTodo();
@@ -3732,13 +3646,10 @@ async function registrarConsumoReceta(recetaId, cantidad = 1, fecha = null) {
 
         for (const item of candidates) {
             try {
-                const respuesta = await fetch(`${BASEROW_API}${TABLA_HISTORIAL}/${fila.id}/?user_field_names=true`, {
+                const respuesta = await solicitarBaserow(TABLA_HISTORIAL, {
+                    rowId: fila.id,
                     method: 'PATCH',
-                    headers: {
-                        'Authorization': `Token ${TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(item)
+                    data: item
                 });
                 if (respuesta.ok) {
                     return await respuesta.json();
@@ -4057,9 +3968,84 @@ function extraerTiempo(texto) {
     return match ? match[1] : 30;
 }
 
+// ===== ACCESO POR PIN =====
+function bloquearAppPorSesionExpirada(mensaje = 'Tu sesión terminó. Ingresa el PIN para continuar.') {
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('pantallaPin').classList.remove('hidden');
+    document.getElementById('inputPin').value = '';
+    document.getElementById('mensajePin').textContent = mensaje;
+}
+
+async function desbloquearApp() {
+    document.getElementById('pantallaPin').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    await sincronizarTodo();
+}
+
+async function inicializarAccesoPin() {
+    const formPin = document.getElementById('formPin');
+    const inputPin = document.getElementById('inputPin');
+    const mensajePin = document.getElementById('mensajePin');
+    const btnPin = document.getElementById('btnPin');
+
+    formPin.addEventListener('submit', async (evento) => {
+        evento.preventDefault();
+        const pin = inputPin.value.trim();
+
+        if (!/^\d{6}$/.test(pin)) {
+            mensajePin.textContent = 'El PIN debe tener seis dígitos.';
+            return;
+        }
+
+        btnPin.disabled = true;
+        btnPin.textContent = 'Verificando...';
+        mensajePin.textContent = '';
+
+        try {
+            const respuesta = await fetch(`${API_ORIGIN}/api/auth/pin`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pin })
+            });
+            const datos = await respuesta.json().catch(() => ({}));
+
+            if (!respuesta.ok || !datos.ok) {
+                inputPin.value = '';
+                mensajePin.textContent = datos.error || 'No fue posible verificar el PIN.';
+                inputPin.focus();
+                return;
+            }
+
+            await desbloquearApp();
+        } catch (error) {
+            console.error('Error al validar el PIN:', error);
+            mensajePin.textContent = 'No se pudo conectar con el servidor.';
+        } finally {
+            btnPin.disabled = false;
+            btnPin.textContent = 'Entrar';
+        }
+    });
+
+    try {
+        const respuesta = await fetch(`${API_ORIGIN}/api/auth/session`, {
+            credentials: 'include'
+        });
+        const datos = await respuesta.json();
+        if (respuesta.ok && datos.autenticado) {
+            await desbloquearApp();
+        } else {
+            inputPin.focus();
+        }
+    } catch (error) {
+        console.error('No se pudo comprobar la sesión:', error);
+        mensajePin.textContent = 'No se pudo conectar con el servidor.';
+    }
+}
+
 // ===== EVENTOS =====
 document.addEventListener('DOMContentLoaded', () => {
-sincronizarTodo();
+    inicializarAccesoPin();
 
     // Pestañas
     document.querySelectorAll('.tab-btn').forEach(btn => {
