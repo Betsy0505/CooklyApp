@@ -74,6 +74,13 @@
         .btn-primary:active {
             transform: scale(0.95);
         }
+
+        .btn-primary:disabled {
+            background: #fdba74; /* naranja apagado */
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.85;
+        }
         
         .btn-secondary {
             background: #e5e7eb;
@@ -361,7 +368,7 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 2000;
+            z-index: 20000;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -1569,7 +1576,7 @@ async function agregarListaCompras(nombre) {
     const item = normalizarListaComprasItem(respuesta);
     if (item) {
         estado.listaCompras = [item, ...estado.listaCompras];
-    }
+    }   
     return item;
 }
 
@@ -4001,6 +4008,8 @@ async function inicializarAccesoPin() {
         btnPin.textContent = 'Verificando...';
         mensajePin.textContent = '';
 
+        let bloqueoActivo = false;
+
         try {
             const respuesta = await fetch(`${API_ORIGIN}/api/auth/pin`, {
                 method: 'POST',
@@ -4008,12 +4017,15 @@ async function inicializarAccesoPin() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ pin })
             });
-            const datos = await respuesta.json().catch(() => ({}));
+            const datos = await respuesta.json();
 
-            if (!respuesta.ok || !datos.ok) {
-                inputPin.value = '';
-                mensajePin.textContent = datos.error || 'No fue posible verificar el PIN.';
-                inputPin.focus();
+            if (!respuesta.ok) {
+                mostrarToast(datos.error || 'Error al validar el PIN', 'error');
+                
+                if (datos.segundosRestantes) {
+                    bloqueoActivo = true;
+                    iniciarCuentaRegresiva(datos.segundosRestantes);
+                }
                 return;
             }
 
@@ -4022,8 +4034,10 @@ async function inicializarAccesoPin() {
             console.error('Error al validar el PIN:', error);
             mensajePin.textContent = 'No se pudo conectar con el servidor.';
         } finally {
-            btnPin.disabled = false;
-            btnPin.textContent = 'Entrar';
+            if(!bloqueoActivo) {
+                btnPin.disabled = false;
+                btnPin.textContent = 'Entrar';
+            }
         }
     });
 
@@ -4041,6 +4055,28 @@ async function inicializarAccesoPin() {
         console.error('No se pudo comprobar la sesión:', error);
         mensajePin.textContent = 'No se pudo conectar con el servidor.';
     }
+}
+
+function iniciarCuentaRegresiva(segundos){
+    const boton = document.querySelector('#btnPin');
+    const inputPin = document.querySelector('#inputpin');
+    let restante = segundos;
+
+    boton.disabled = true;
+    if(inputPin) inputPin.disabled = true;
+    boton.textContent = `Espera ${restante}s`;
+
+    const intervalo = setInterval(() => {
+        restante -= 1;
+        if (restante < 0) {
+            clearInterval(intervalo);
+            boton.disabled = false;
+            if(inputPin) inputPin.disabled = false;
+            boton.textContent = 'Entrar';
+        } else {
+            boton.textContent = `Espera ${restante}s`;
+        }
+    }, 1000);
 }
 
 // ===== EVENTOS =====
