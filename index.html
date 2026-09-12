@@ -2100,7 +2100,7 @@ function renderizarPlanSemanal() {
     for (let i = 0; i < 7; i++) {
         const fecha = new Date(inicioSemana);
         fecha.setDate(fecha.getDate() + i);
-        const fechaStr = fecha.toISOString().split('T')[0];
+        const fechaStr = formatearFechaLocal(fecha);
         const comidasDelDia = estado.planSemanal.filter(p => p.Fecha === fechaStr);
         
         html += `<div class="bg-white rounded-xl p-3 mb-3 shadow-sm border-l-4 border-cookly">
@@ -2231,45 +2231,70 @@ function wrapText(ctx, text, maxWidth) {
     return lines;
 }
 
-function obtenerBloquesPlanSemanal() {
-    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const items = [...estado.planSemanal].filter(item => item && item.Active !== false);
+function obtenerRangoSemanalActual(){
+    const hoy = new Date();
+    const diaActual = hoy.getDay();
 
-    const porFecha = {};
+    const diaHastaLunes = diaActual === 6 ? 2 : 1 - diaActual;
+    const inicioSemana = new Date(hoy);
+    inicioSemana.setDate(hoy.getDate() + diaHastaLunes);
+    inicioSemana.setHours(0, 0, 0, 0);
+
+    const finSemana = new Date(inicioSemana);
+    finSemana.setDate(finSemana.getDate() + 6);
+    finSemana.setHours(23, 59, 59, 999);
+
+    return { inicioSemana, finSemana};
+}
+
+function obtenerBloquesPlanSemanal(){
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const { inicioSemana, finSemana } = obtenerRangoSemanalActual();
+
+    const items = [...estado.planSemanal].filter(item => {
+        if(!item || item.Active === false) return false;
+        
+        const fecha = String(item.Fecha || '').trim();
+        if(!fecha) return false;
+
+        const fechaObj = new Date(`${fecha}T12:00:00`);
+        return fechaObj >= inicioSemana && fechaObj <= finSemana;
+    });
+
+    const porFecha={};
     items.forEach(item => {
         const fecha = String(item.Fecha || '').trim();
-        if (!fecha) return;
 
         const recetaId = Number(item.Receta ?? item.receta ?? 0);
-        if (!recetaId) return;
+        if(!recetaId) return;
 
         const receta = estado.recetas.find(r => Number(r.id) === recetaId);
-        if (!receta) return;
+        if(!receta) return;
 
         const nombre = obtenerTituloReceta(receta);
-        if (!nombre) return;
+        if(!nombre) return;
 
         const fechaObj = new Date(`${fecha}T12:00:00`);
         const diaNombre = dias[fechaObj.getDay()] || 'Día';
 
-        if (!porFecha[fecha]) {
+        if(!porFecha[fecha]) {
             porFecha[fecha] = { fecha, dia: diaNombre, comidas: [] };
         }
 
         const tipo = normalizarTipoComida(item.Comida || receta.Tipo || 'Comida');
-        if (!tipo) return;
+        if(!tipo) return;
 
-        porFecha[fecha].comidas.push({ tipo, nombre });
+        porFecha[fecha].comidas.push({tipo, nombre});
     });
 
     return Object.values(porFecha)
-        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
-        .map(({ fecha, dia, comidas }) => ({
-            fecha,
-            dia,
-            comidas: comidas.filter(c => c && c.nombre)
-        }))
-        .filter(({ comidas }) => comidas.length > 0);
+    .sort((a,b) => new Date(a.fecha) - new Date(b.fecha))
+    .map(({ fecha, dia, comidas}) => ({
+        fecha,
+        dia, 
+        comidas: comidas.filter(c => c && c.nombre)
+    }))
+    .filter(({ comidas }) => comidas.length > 0);
 }
 
 function generarTextoPlanSemanal() {
@@ -3621,7 +3646,7 @@ async function registrarConsumoReceta(recetaId, cantidad = 1, fecha = null) {
     const id = Number(recetaId);
     if (!id || cantidad <= 0) return null;
 
-    const fechaHoy = fecha || new Date().toISOString().split('T')[0];
+    const fechaHoy = fecha || formatearFechaLocal(new Date());
     const filas = estado.historial.filter(item => {
         if (!item || item.Active === false) return false;
         const recetaIdItem = normalizarRelacionId(item.Receta ?? item.receta);
@@ -3794,7 +3819,7 @@ function renderizarRecomendaciones() {
 // ===== FUNCIONES AUXILIARES =====
 async function agregarAlPlan(receta) {
     if (!receta) return;
-    const fecha = new Date().toISOString().split('T')[0];
+    const fecha = formatearFechaLocal(new Date());
     const tipo = await pedirTipoComida();
     if (tipo && ['desayuno','comida','cena'].includes(tipo.toLowerCase())) {
         const itemLocal = guardarPlanLocal(fecha, tipo, receta.id);
@@ -4057,9 +4082,16 @@ async function inicializarAccesoPin() {
     }
 }
 
+function formatearFechaLocal(fecha) {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 function iniciarCuentaRegresiva(segundos){
     const boton = document.querySelector('#btnPin');
-    const inputPin = document.querySelector('#inputpin');
+    const inputPin = document.querySelector('#inputPin');
     let restante = segundos;
 
     boton.disabled = true;
